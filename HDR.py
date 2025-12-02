@@ -12,15 +12,25 @@ class Layer:
     def __init__(self, n_inputs, n_neurons):
         self.weights = np.random.randn(n_inputs, n_neurons) * 0.01
         self.biases = np.zeros((1, n_neurons))
-    
     def fpropagation(self, input):
+        self.inputs = input 
         self.output = np.dot(input, self.weights) + self.biases  
         return self.output
+    def backward(self, backwardpass):
+        self.dweights = np.dot(self.inputs.T, backwardpass)
+        self.dbiases = np.sum(backwardpass, axis=0, keepdims=True)
+        self.dinputs = np.dot(backwardpass, self.weights.T)
+        return self.dinputs
 
 class Activation:
     def forward(self, input):
+        self.input = input
         self.output= np.maximum(0, input)
         return self.output
+    def backward(self, dvalues):
+        self.dinputs = dvalues.copy()
+        self.dinputs[self.input <= 0] = 0
+        return self.dinputs
 
 class Softmax:
     def forward (self, input):
@@ -38,7 +48,20 @@ class Loss:
         return mean_loss
 
 
-
+class Backpropagation:
+    def __init__(self, activation, loss):
+        self.activation = Softmax()
+        self.loss = Loss()
+    def forward(self, input, labels):
+        self.result = self.activation.forward(input)
+        self.lossf = self.loss.forward(self.result, labels)
+        return self.lossf
+    def backward(self, labels):
+        probabilities_normalized = self.result.copy()
+        probabilities_normalized[range(probabilities_normalized.shape[0]), labels] -= 1
+        dvalues = probabilities_normalized / probabilities_normalized.shape[0]
+        return dvalues
+    
 pathimagess = 'dataset/train-images.idx3-ubyte'
 pathlabelss = 'dataset/train-labels.idx1-ubyte'
 images, labels = data_handling(pathimagess, pathlabelss)
@@ -61,17 +84,8 @@ results =  output_layer_by_probability.forward(input=output_layer_output)
 loss = losscalc.forward(y_pred=results, y_true=labels)
 print("Loss:", loss) # ~ -ln(1/10)
 
-class Learning:
-    def __init__(self, activation, loss):
-        self.activation = Softmax()
-        self.loss = Loss()
-    def forward(self, input, labels):
-        self.result = self.activation.forward(input)
-        self.lossf = self.loss.forward(self.result, labels)
-        return self.lossf
-    def backward(self, labels):
-        probabilities_normalized = self.result.copy()
-        probabilities_normalized[range(probabilities_normalized.shape[0]), labels] -= 1
-        backward_pass = probabilities_normalized / probabilities_normalized.shape[0]
-        return backward_pass
-
+# Your Current Name,Standard Name,Meaning
+# backwardpass,dvalues,The gradient coming in from the layer ahead.
+# bweights,dweights,The calculated gradient for self.weights.
+# bbiasesbiases,dbiases,The calculated gradient for self.biases.
+# bbackward,dinputs,The gradient to pass back to the previous layer.
