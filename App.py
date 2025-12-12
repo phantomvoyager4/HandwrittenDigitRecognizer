@@ -4,9 +4,9 @@ from PIL import Image, ImageDraw
 import numpy as np
 
 class App:
-    def __init__(self):
+    def transfer_network(self, filepath = 'models_data_storage/model_1/model_1_95.28_0.5.npz'):
         #network structure transfer
-        self.model = np.load('models_data_storage/model_1/model_1_95.28_0.5.npz')
+        self.model = np.load(filepath)
         self.layer1 = Layer(n_inputs=784, n_neurons=128)
         self.layer2 = Layer(n_inputs=128, n_neurons=64)
         self.output_layer = Layer(n_inputs=64, n_neurons=10)
@@ -19,6 +19,8 @@ class App:
         self.activation = Activation()
         self.softmax = Softmax()
 
+    def __init__(self):
+        self.transfer_network()
         app_window = Tk()
         app_window.geometry('500x500')
         app_window.title('Digit recognizer')
@@ -63,20 +65,30 @@ class App:
         self.image = Image.new(mode='RGB', size=(300, 300), color="white")
         self.draw = ImageDraw.Draw(self.image)
 
-    def predict_digit(self):
-        image_resized = self.image.resize((28,28))
+
+    def image_processing(self, raw_image):
+        image_resized = raw_image.resize((28,28), resample = Image.LANCZOS)
         image_grayscaled = image_resized.convert('L')
         image_array = np.array(image_grayscaled)
         reversed_array = 255 - image_array
         normalize = reversed_array / 255.0
-        vectorized = normalize.reshape(1, 784)       
-        l1 = self.layer1.fpropagation(input = vectorized)
+        vectorized = normalize.reshape(1, 784)
+        return vectorized
+
+    def network_pipeline(self, image_vector):
+        l1 = self.layer1.fpropagation(input = image_vector)
         a1 = self.activation.forward(l1)
         l2 = self.layer2.fpropagation(input = a1)
         a2 = self.activation.forward(l2)
         ol = self.output_layer.fpropagation(a2)
         softmaxed = self.softmax.forward(ol)
         result = np.argmax(softmaxed)
+        return result
+
+    def predict_digit(self):
+        vector = self.image_processing(self.image)       
+        result = self.network_pipeline(vector)
         self.textlabel.config(text=f'Prediction: {str(result)}')
+
 
 app1 = App()
