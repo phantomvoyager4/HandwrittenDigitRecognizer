@@ -84,13 +84,14 @@ class App:
         for layer in self.network:
             iteration = layer.forward(current_signal)
             current_signal = iteration
+        result_probability = np.max(current_signal)
         result = np.argmax(current_signal)
-        return result
+        return result, result_probability
         
     def predict_digit(self):
         vector = self.image_processing(self.image)       
-        result = self.network_pipeline(vector)
-        self.textlabel.config(text=f'Prediction: {str(result)}')
+        result, probability = self.network_pipeline(vector)
+        self.textlabel.config(text=f'Prediction: {str(result)}, Certainty: {(probability*100):.2f}')
 
 
 app1 = App()
