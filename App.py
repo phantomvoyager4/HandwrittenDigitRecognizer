@@ -16,7 +16,8 @@ class App:
         self.layer2.biases = self.model['b2']
         self.output_layer.weights = self.model['w3']
         self.output_layer.biases = self.model['b3']
-        
+        self.activation = Activation()
+        self.softmax = Softmax()
 
         app_window = Tk()
         app_window.geometry('500x500')
@@ -58,7 +59,24 @@ class App:
         self.last_y = y
 
     def clear_canvas(self):
-        self.C.delete("all")
-        
+        self.C.delete('all')
+        self.image = Image.new(mode='RGB', size=(300, 300), color="white")
+        self.draw = ImageDraw.Draw(self.image)
+
+    def predict_digit(self):
+        image_resized = self.image.resize((28,28))
+        image_grayscaled = image_resized.convert('L')
+        image_array = np.array(image_grayscaled)
+        reversed_array = 255 - image_array
+        normalize = reversed_array / 255.0
+        vectorized = normalize.reshape(1, 784)       
+        l1 = self.layer1.fpropagation(input = vectorized)
+        a1 = self.activation.forward(l1)
+        l2 = self.layer2.fpropagation(input = a1)
+        a2 = self.activation.forward(l2)
+        ol = self.output_layer.fpropagation(a2)
+        softmaxed = self.softmax.forward(ol)
+        result = np.argmax(softmaxed)
+        self.textlabel.config(text=f'Prediction: {str(result)}')
 
 app1 = App()
