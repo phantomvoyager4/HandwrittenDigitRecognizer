@@ -10,14 +10,14 @@ class App:
         self.layer1 = Layer(n_inputs=784, n_neurons=128)
         self.layer2 = Layer(n_inputs=128, n_neurons=64)
         self.output_layer = Layer(n_inputs=64, n_neurons=10)
-        self.layer1.weights = self.model['w1']
-        self.layer1.biases = self.model['b1']
-        self.layer2.weights = self.model['w2']
-        self.layer2.biases = self.model['b2']
-        self.output_layer.weights = self.model['w3']
-        self.output_layer.biases = self.model['b3']
         self.activation = Activation()
         self.softmax = Softmax()
+        trainable_layers = [self.layer1, self.layer2, self.output_layer]
+        for index, layer in enumerate(trainable_layers):
+            file_id = index + 1
+            layer.weights = self.model[f'w{file_id}']
+            layer.biases = self.model[f'b{file_id}']
+        self.network = [self.layer1, self.activation, self.layer2, self.activation, self.output_layer, self.softmax]
 
     def __init__(self):
         self.transfer_network()
@@ -27,7 +27,6 @@ class App:
 
         self.C = Canvas(app_window, height=300, width=300, bg='white')
         self.C.pack()
-        self.C.config()
         self.C.bind("<Button-1>", self.activate_event)       
         self.C.bind("<B1-Motion>", self.draw_line)
 
@@ -36,16 +35,10 @@ class App:
         self.last_x = None
         self.last_y = None
 
-        self.predict = Button(app_window, text='Predict', command=self.predict_digit)
-        self.predict.pack()
-
-        self.clear = Button(app_window, text='Clear', command=self.clear_canvas)
-        self.clear.pack()
-
+        Button(app_window, text='Predict', command=self.predict_digit).pack()
+        Button(app_window, text='Clear', command=self.clear_canvas).pack()
         self.textlabel = Label(app_window, text='Draw your digit')
         self.textlabel.pack()
-
-        #run
         app_window.mainloop()
 
     def activate_event(self, event):
@@ -83,22 +76,16 @@ class App:
         newimage = newimage.resize((20,20), resample= Image.LANCZOS)
         final_image = Image.new(mode='L', size=(28,28), color=0)
         final_image.paste(newimage, [4, 4])
-        image_array = np.array(final_image)
-        normalize = image_array / 255.0
-        vectorized = normalize.reshape(1, 784)
-        return vectorized
-       
+        return ((np.array(final_image)) / 255.0).reshape(1, 784)
 
     def network_pipeline(self, image_vector):
-        l1 = self.layer1.fpropagation(input = image_vector)
-        a1 = self.activation.forward(l1)
-        l2 = self.layer2.fpropagation(input = a1)
-        a2 = self.activation.forward(l2)
-        ol = self.output_layer.fpropagation(a2)
-        softmaxed = self.softmax.forward(ol)
-        result = np.argmax(softmaxed)
+        current_signal = image_vector
+        for layer in self.network:
+            iteration = layer.forward(current_signal)
+            current_signal = iteration
+        result = np.argmax(current_signal)
         return result
-
+        
     def predict_digit(self):
         vector = self.image_processing(self.image)       
         result = self.network_pipeline(vector)

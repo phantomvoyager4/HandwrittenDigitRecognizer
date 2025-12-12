@@ -6,7 +6,6 @@ pathimagess = 'dataset/train-images.idx3-ubyte'
 pathlabelss = 'dataset/train-labels.idx1-ubyte'
 images, labels = data_handling(pathimagess, pathlabelss)
 
-
 hidden_layer1 = Layer(n_inputs=784, n_neurons=128)
 activation1 = Activation()
 activation2 = Activation()
@@ -14,35 +13,32 @@ hidden_layer2 = Layer(n_inputs=128, n_neurons=64)
 output_layer = Layer(n_inputs=64, n_neurons=10)
 loss_activation = Backpropagation()
 optimization = Optimizer(0.5)
+network = [hidden_layer1, activation1, hidden_layer2, activation2, output_layer]
+trainable_layers = [hidden_layer1, hidden_layer2, output_layer]
 
 for epoch in range (401):
-    first_layer = hidden_layer1.fpropagation(images)
-    first__layer_activation = activation1.forward(first_layer)
-    second_layer = hidden_layer2.fpropagation(first__layer_activation)
-    second_layer_activation = activation2.forward(second_layer)
-    output_layer_output = output_layer.fpropagation(second_layer_activation)
+    current_input = images
+    for layer in network:
+        iteration = layer.forward(current_input)
+        current_input = iteration
 
-    loss = loss_activation.forward(output_layer_output, labels)
+    loss = loss_activation.forward(current_input, labels)
 
-    highestchangebyrow = np.argmax(output_layer_output, axis=1)
+    highestchangebyrow = np.argmax(current_input, axis=1)
     comparison = np.equal(highestchangebyrow, labels)
     accuracy = np.mean(comparison)
 
     if epoch % 100 == 0:
         print(f"Epoch: {epoch}, Loss: {loss:.3f}, Accuracy: {accuracy:.3f}")
+        
+    dvalues = loss_activation.backward(labels)
+    for layer in reversed(network):
+        iterate = layer.backward(dvalues) 
+        dvalues = iterate
 
-    backwards = loss_activation.backward(labels=labels)
-    olpass = output_layer.backward(backwards)
-    aslpass = activation2.backward(olpass)
-    slpass = hidden_layer2.backward(aslpass)
-    aflpass = activation1.backward(slpass)
-    flpass = hidden_layer1.backward(aflpass)
-
-    optimization.adjust_parameters(hidden_layer1)
-    optimization.adjust_parameters(hidden_layer2)
-    optimization.adjust_parameters(output_layer)
-
-
+    for layer in trainable_layers:
+        optimization.adjust_parameters(layer)
+    
 models_folder_path = "models_data_storage"
 model_version_number = 1
 
@@ -59,11 +55,8 @@ model_lr = optimization.learning_rate
 
 #model pathing: model_[version number]_[model accuracy]_[model learning rate]
 fullpath = f"{model_path}/model_{model_version_number}_{modelaccuracy}_{model_lr}.npz"
-np.savez(fullpath, 
-        w1 = hidden_layer1.weights,
-        b1 = hidden_layer1.biases,
-        w2 = hidden_layer2.weights,
-        b2 = hidden_layer2.biases,
-        w3 = output_layer.weights,
-        b3 = output_layer.biases
-        )
+savedata = {}
+for index,layer in enumerate(trainable_layers):
+    wbid = index + 1
+    savedata.update({f"w{wbid}" : layer.weights, f"b{wbid}" : layer.biases})
+np.savez(fullpath, **savedata)

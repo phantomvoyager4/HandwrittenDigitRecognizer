@@ -12,14 +12,14 @@ class Layer:
     def __init__(self, n_inputs, n_neurons):
         self.weights = np.random.randn(n_inputs, n_neurons) * 0.01
         self.biases = np.zeros((1, n_neurons))
-    def fpropagation(self, input):
+    def forward(self, input):
         self.input = input 
         self.output = np.dot(input, self.weights) + self.biases  
         return self.output
-    def backward(self, backwardpass):
-        self.dweights = np.dot(self.input.T, backwardpass)
-        self.dbiases = np.sum(backwardpass, axis=0, keepdims=True)
-        self.dinputs = np.dot(backwardpass, self.weights.T)
+    def backward(self, dvalues):
+        self.dweights = np.dot(self.input.T, dvalues)
+        self.dbiases = np.sum(dvalues, axis=0, keepdims=True)
+        self.dinputs = np.dot(dvalues, self.weights.T)
         return self.dinputs
 
 class Activation:
@@ -65,7 +65,5 @@ class Optimizer:
     def __init__(self, input):
         self.learning_rate = input
     def adjust_parameters(self, layer):
-        step_weights = np.multiply(self.learning_rate, layer.dweights)
-        layer.weights -= step_weights
-        step_biases = np.multiply(self.learning_rate, layer.dbiases)
-        layer.biases -= step_biases
+        layer.weights -= (self.learning_rate * layer.dweights)
+        layer.biases -= (self.learning_rate * layer.dbiases)
