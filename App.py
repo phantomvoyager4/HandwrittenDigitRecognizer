@@ -2,6 +2,8 @@ from HDR import Layer, Activation, Softmax
 from tkinter import *
 from PIL import Image, ImageDraw, ImageOps
 import numpy as np
+import os
+import datetime
 
 class App:
     def transfer_network(self, filepath = 'models_data_storage/model_1/model_1_95.28_0.5.npz'):
@@ -91,7 +93,9 @@ class App:
     def predict_digit(self):
         vector = self.image_processing(self.image)       
         result, probability = self.network_pipeline(vector)
-        self.textlabel.config(text=f'Prediction: {str(result)}, Certainty: {(probability*100):.2f}')
+        filename = f'user_input_storage/draw_pred_{result}_cert_{(probability*100):.2f}_{datetime.datetime.now().strftime('%m-%d_%H-%M-%S')}.png'
+        self.image.save(filename)
+        self.textlabel.config(text=f'Prediction: {str(result)} ({(probability*100):.2f}%)')
 
 
 app1 = App()
