@@ -12,10 +12,8 @@ A neural network implementation built from scratch using NumPy to recognize hand
 - [Project Structure](#project-structure)
 - [Core Components](#core-components)
 - [How It Works](#how-it-works)
-- [Key Mathematical Concepts](#key-mathematical-concepts)
+- [App System](#app-system)
 - [Usage](#usage)
-- [Learning Outcomes](#learning-outcomes)
-- [Future Enhancements](#future-enhancements)
 - [Dataset](#dataset)
 - [References](#references)
 - [License](#license)
@@ -54,14 +52,12 @@ pip install numpy idx2numpy
 
 ```
 digit-recognizer/
-├── HDR.py              # Core neural network implementation
+├── HDR.py              # Neural network implementation
 ├── train.py            # Training script
+├── App.py              # Interactive GUI application
 ├── README.md           # This file
-└── dataset/
-    ├── train-images.idx3-ubyte    # Training images
-    ├── train-labels.idx1-ubyte    # Training labels
-    ├── t10k-images.idx3-ubyte     # Test images
-    └── t10k-labels.idx1-ubyte     # Test labels
+└── dataset/            # MNIST dataset files
+    └── (binary IDX format files)
 ```
 
 ## Core Components
@@ -104,42 +100,59 @@ Implements basic Stochastic Gradient Descent (SGD):
 
 ### train.py - Training Script
 
-Trains the neural network with:
-- Configurable learning rate (0.5)
-- 400 training epochs
-- Periodic loss and accuracy logging (every 100 epochs)
-- Full forward and backward passes for each epoch
+Trains the neural network with configurable parameters (learning rate 0.5, 400 epochs). Includes periodic loss and accuracy logging.
 
 ## How It Works
 
-### Forward Propagation
-1. Input images (784 features) pass through hidden layer 1
-2. ReLU activation introduces non-linearity
-3. Output passes through hidden layer 2 with ReLU
-4. Final layer output fed through Softmax to get probabilities
-5. Loss computed using categorical cross-entropy
+**Forward Propagation**: Input (784 features) → Layer 1 (128 neurons, ReLU) → Layer 2 (64 neurons, ReLU) → Output (10 classes, Softmax) → Loss
 
-### Backward Propagation
-1. Compute gradient of loss with respect to output
-2. Propagate gradients back through Softmax and Loss
-3. Propagate through second hidden layer and its activation
-4. Propagate through first hidden layer and its activation
-5. Update all weights and biases using SGD optimizer
+**Backward Propagation**: Computes gradients through Softmax/Loss, propagates back through both hidden layers, and updates all weights and biases using SGD.
 
-### Key Mathematical Concepts
+### Key Mathematics
 
-**ReLU Activation**: 
-$$f(x) = \max(0, x)$$
+**ReLU**: $f(x) = \max(0, x)$ | **Softmax**: $\sigma(z_i) = \frac{e^{z_i}}{\sum_j e^{z_j}}$ | **Cross-Entropy Loss**: $L = -\sum_i y_i \ln(\hat{y}_i)$
 
-**Softmax Function**:
-$$\sigma(z_i) = \frac{e^{z_i}}{\sum_j e^{z_j}}$$
+## App System
 
-**Cross-Entropy Loss**:
-$$L = -\sum_i y_i \ln(\hat{y}_i)$$
+### App.py - Interactive GUI Application
 
-where $y_i$ is the true label and $\hat{y}_i$ is the predicted probability.
+An interactive Tkinter-based GUI that loads a trained model and allows real-time digit prediction from user drawings.
+
+**Key Features:**
+- **Model Loading**: `transfer_network()` loads pretrained weights from saved `.npz` files
+- **Network Pipeline**: Implements the full neural network using loaded layers and activations
+- **Drawing Canvas**: 300×300 pixel drawing area with black ink on white background
+- **Image Processing**: Converts hand-drawn images to normalized 28×28 pixel format matching MNIST specifications
+  - Grayscales and inverts the image
+  - Centers the digit using bounding box
+  - Scales to 20×20 and pads to 28×28
+  - Normalizes pixel values to [0, 1]
+- **Real-time Prediction**: Processes drawn image through network and displays predicted digit
+- **Controls**: "Predict" button triggers recognition, "Clear" button resets canvas
+
+**Workflow:**
+1. App initializes with pretrained model (default: model_1_95.28_0.5.npz)
+2. User draws digit on canvas
+3. Clicking "Predict" sends image through preprocessing pipeline
+4. Network pipeline forwards the normalized image through all layers
+5. Output layer produces 10 class probabilities via Softmax
+6. `argmax` selects the highest probability digit
+7. Result displayed on GUI
+
+**Network Pipeline Components:**
+```
+Input (784) → Layer1 (128) → ReLU → Layer2 (64) → ReLU → Output (10) → Softmax → Prediction
+```
 
 ## Usage
+
+### Running the GUI Application
+
+```bash
+python App.py
+```
+
+Launch the interactive digit recognizer. Draw a digit and click "Predict" to see the AI's prediction.
 
 ### Training the Model
 
@@ -147,13 +160,9 @@ where $y_i$ is the true label and $\hat{y}_i$ is the predicted probability.
 python train.py
 ```
 
-The script will:
-1. Load training data from the dataset folder
-2. Initialize the neural network with three layers
-3. Train for 400 epochs
-4. Print loss and accuracy every 100 epochs
+Train a new model (results logged every 100 epochs).
 
-Expected output:
+**Example Output:**
 ```
 Epoch: 0, Loss: 2.297, Accuracy: 0.107
 Epoch: 100, Loss: 0.218, Accuracy: 0.935
@@ -163,49 +172,41 @@ Epoch: 300, Loss: 0.115, Accuracy: 0.963
 
 ## Learning Outcomes
 
-This project teaches:
+This project demonstrates:
 - Neural network fundamentals from scratch
 - Forward and backward propagation mechanics
-- Activation functions (ReLU, Softmax)
-- Loss functions and optimization
-- Matrix operations and NumPy usage
-- MNIST dataset handling
+- Activation functions (ReLU, Softmax) and loss functions
+- Matrix operations with NumPy
+- Image preprocessing and normalization
+- End-to-end ML system integration
 
 ## Future Enhancements
 
-- **Custom Digit Recognition System**: An end-to-end system allowing users to input custom digits (28×28 pixel images) and receive predictions with confidence scores
+- Confidence scores with predictions
 - Test set evaluation script
-- Visualization of learned weights
+- Weight visualization
 - Hyperparameter tuning utilities
-- Additional activation functions (Sigmoid, Tanh)
-- Batch normalization
-- Regularization techniques (L1/L2)
-- Model saving and loading capabilities
+- Batch normalization and regularization (L1/L2)
+- Additional model saving/loading options
 
 ## Dataset
 
-The MNIST dataset consists of 70,000 handwritten digit images:
-- **60,000 training images**
-- **10,000 test images**
-- Image size: 28×28 pixels (784 features when flattened)
-- Pixel values: 0-255 (normalized to 0-1)
+The MNIST dataset contains 70,000 handwritten digit images (28×28 pixels, 784 features when flattened):
+- 60,000 training images
+- 10,000 test images
+- Pixel values: 0-255 (normalized to [0, 1])
 
-Dataset source: [MNIST Database](http://yann.lecun.com/exdb/mnist/)
+Source: [MNIST Database](http://yann.lecun.com/exdb/mnist/)
 
 ## References
 
 - [ReLU Activation Function](https://en.wikipedia.org/wiki/Rectifier_(neural_networks))
-- [Softmax Function](https://en.wikipedia.org/wiki/Softmax_function)
-- [Cross-Entropy Loss](https://en.wikipedia.org/wiki/Cross_entropy)
+- [Softmax & Cross-Entropy](https://en.wikipedia.org/wiki/Softmax_function)
 - [Backpropagation Algorithm](https://en.wikipedia.org/wiki/Backpropagation)
-- [idx2numpy GitHub](https://github.com/ivanyu/idx2numpy)
+- [idx2numpy](https://github.com/ivanyu/idx2numpy)
 
 ## License
 
-**Free to Use** - This educational project is provided as-is for learning purposes. You are free to use, modify, and distribute this project for educational and personal projects.
-
-## Author
-
-Created as an educational resource to demonstrate neural network principles using pure Python and NumPy.
+Free to use for educational and personal projects. This implementation demonstrates neural network principles using pure Python and NumPy.
 
 
