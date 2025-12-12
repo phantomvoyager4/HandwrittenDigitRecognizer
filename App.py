@@ -21,25 +21,26 @@ class App:
 
     def __init__(self):
         self.transfer_network()
-        app_window = Tk()
-        app_window.geometry('500x500')
-        app_window.title('Digit recognizer')
-
-        self.C = Canvas(app_window, height=300, width=300, bg='white')
-        self.C.pack()
+        self.app_window = Tk()
+        self.app_window.geometry('400x550')
+        self.app_window.title('Digit Recognizer AI')
+        self.app_window.configure(bg='#f0f0f0')
+        self.C = Canvas(self.app_window, height=300, width=300, bg='white', relief='groove', bd=2)
+        self.C.pack(pady=20) 
         self.C.bind("<Button-1>", self.activate_event)       
         self.C.bind("<B1-Motion>", self.draw_line)
-
+        self.textlabel = Label(self.app_window, text="Draw a digit...", font=("Helvetica", 20, "bold"), bg='#f0f0f0')
+        self.textlabel.pack(pady=10)
+        control_frame = Frame(self.app_window, bg='#f0f0f0')
+        control_frame.pack(side='bottom', pady=30)
+        Button(control_frame, text='Predict', command=self.predict_digit, font=("Helvetica", 11), width=10).grid(row=0, column=0, padx=10)
+        Button(control_frame, text='Clear', command=self.clear_canvas, font=("Helvetica", 11), width=10).grid(row=0, column=1, padx=10)
         self.image = Image.new(mode='RGB', size=(300, 300), color="white")
         self.draw = ImageDraw.Draw(self.image)
         self.last_x = None
         self.last_y = None
 
-        Button(app_window, text='Predict', command=self.predict_digit).pack()
-        Button(app_window, text='Clear', command=self.clear_canvas).pack()
-        self.textlabel = Label(app_window, text='Draw your digit')
-        self.textlabel.pack()
-        app_window.mainloop()
+        self.app_window.mainloop()
 
     def activate_event(self, event):
         self.last_x = event.x
