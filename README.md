@@ -3,6 +3,9 @@
 
 A neural network implementation built from scratch using NumPy to recognize handwritten digits trained on the MNIST dataset. This project demonstrates core deep learning concepts including forward propagation, backpropagation, activation functions, and optimization techniques.
 
+<p align="center">
+  <img src="https://github.com/phantomvoyager4/HandwrittenDigitsRecognizer/blob/main/demo.gif" width="250" />
+</p>
 
 ## Table of Contents
 
@@ -14,16 +17,16 @@ A neural network implementation built from scratch using NumPy to recognize hand
 - [How It Works](#how-it-works)
 - [App System](#app-system)
 - [Usage](#usage)
+- [Learning outcomes](#learning-outcomes)
+- [Future enchacements](#future-enchancements)
 - [Dataset](#dataset)
 - [References](#references)
 
 ## Overview
 
-This is an educational implementation of a neural network designed to classify handwritten digits (0-9) with approximately **93% accuracy** after 400 training epochs. The entire model is implemented from first principles using only NumPy and idx2numpy, without relying on deep learning frameworks like TensorFlow or PyTorch.
-
 **Key Performance Metrics:**
-- Accuracy: ~93%
-- Training Epochs: 400
+- Accuracy: ~95%
+- Training Epochs: 1001
 - Dataset: MNIST (60,000 training images, 10,000 test images)
 - Input Size: 784 pixels (28×28 images)
 - Output Classes: 10 (digits 0-9)
