@@ -94,11 +94,13 @@ class App:
             width=10
         ).grid(row=2, column=1, padx=10)
 
+        self.v1 = IntVar()
         self.save_checkbox = Checkbutton(
             control_frame,
             text='Save image?',
             font=('Helvetica', 10),
-            bg='#f0f0f0'
+            bg='#f0f0f0',
+            variable = self.v1
         )
         self.save_checkbox.grid(row=3, column=0, columnspan=2, pady=10)
 
@@ -177,15 +179,16 @@ class App:
 
         vector = self.image_processing(self.image)
         result, probability = self.network_pipeline(vector)
-        filename = (
-            f'user_input_storage/draw_pred_{result}_cert_'
-            f'{(probability * 100):.2f}_'
-            f'{datetime.datetime.now().strftime("%m-%d_%H-%M-%S")}.png'
-        )
-        self.final_image.save(filename)
+        if self.v1.get() == 1:
+            filename = (
+                f'user_input_storage/draw_pred_{result}_cert_'
+                f'{(probability * 100):.2f}_'
+                f'{datetime.datetime.now().strftime("%m-%d_%H-%M-%S")}.png'
+            )
+            self.final_image.save(filename)
         self.textlabel.config(
             text=f'Prediction: {str(result)} ({(probability * 100):.2f}%)'
         )
-
+    
 
 app1 = App()
