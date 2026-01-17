@@ -42,7 +42,7 @@ class App:
     def __init__(self):
         self.app_window = Tk()
         self.is_model_loaded = False
-        self.app_window.geometry('400x550')
+        self.app_window.geometry('400x600')
         self.app_window.title('Digit Recognizer AI')
         self.app_window.configure(bg='#f0f0f0')
 
@@ -65,6 +65,7 @@ class App:
             bg='#f0f0f0'
         )
         self.textlabel.pack(pady=10)
+
 
         control_frame = Frame(self.app_window, bg='#f0f0f0')
         control_frame.pack(side='bottom', pady=30)
@@ -93,7 +94,15 @@ class App:
             width=10
         ).grid(row=2, column=1, padx=10)
 
-        self.image = Image.new(mode='RGB', size=(300, 300), color="white")
+        self.save_checkbox = Checkbutton(
+            control_frame,
+            text='Save image?',
+            font=('Helvetica', 10),
+            bg='#f0f0f0'
+        )
+        self.save_checkbox.grid(row=3, column=0, columnspan=2, pady=10)
+
+        self.image = Image.new(mode='RGB', size=(300, 300), color='white')
         self.draw = ImageDraw.Draw(self.image)
         self.last_x = None
         self.last_y = None
