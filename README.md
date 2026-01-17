@@ -9,18 +9,18 @@ A neural network implementation built from scratch using NumPy to recognize hand
 
 ## Table of Contents
 
-- [Overview](#overview)
-- [Architecture](#architecture)
-- [Technologies & Dependencies](#technologies--dependencies)
-- [Project Structure](#project-structure)
-- [Core Components](#core-components)
-- [How It Works](#how-it-works)
-- [App System](#app-system)
-- [Usage](#usage)
-- [Learning outcomes](#learning-outcomes)
-- [Future enchacements](#future-enchancements)
-- [Dataset](#dataset)
-- [References](#references)
+[Overview](#overview)
+[Architecture](#architecture)
+[Technologies & Dependencies](#technologies--dependencies)
+[Project Structure](#project-structure)
+[Core Components](#core-components)
+[How It Works](#how-it-works)
+[App System](#app-system)
+[Usage](#usage)
+[Learning outcomes](#learning-outcomes)
+[Future enchacements](#future-enchancements)
+[Dataset](#dataset)
+[References](#references)
 
 ## Overview
 
@@ -41,13 +41,28 @@ The neural network consists of:
 
 ## Technologies & Dependencies
 
-- **Python 3.x**
-- **NumPy**: Numerical computing and matrix operations
-- **idx2numpy**: For loading and converting MNIST IDX binary format
+- **Python 3.8+**
+- **NumPy 1.24.3**: Numerical computing and matrix operations
+- **idx2numpy 1.2.3**: For loading and converting MNIST IDX binary format
+- **Pillow 10.0.0**: Image processing for UI input
 
-Install dependencies:
+### Installation
+
+1. Clone the repository:
 ```bash
-pip install numpy idx2numpy
+git clone https://github.com/yourusername/digit-recognizer.git
+cd digit-recognizer
+```
+
+2. Create a virtual environment (optional but recommended):
+```bash
+python -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+```
+
+3. Install dependencies:
+```bash
+pip install -r requirements.txt
 ```
 
 ## Project Structure
@@ -112,7 +127,7 @@ Trains the neural network with configurable parameters (learning rate 0.5, 400 e
 
 ### Key Mathematics
 
-**ReLU**: $f(x) = \max(0, x)$ | **Softmax**: $\sigma(z_i) = \frac{e^{z_i}}{\sum_j e^{z_j}}$ | **Cross-Entropy Loss**: $L = -\sum_i y_i \ln(\hat{y}_i)$
+**ReLU**: $f(x) = \max(0, x)$ <br> **Softmax**: $\sigma(z_i) = \frac{e^{z_i}}{\sum_j e^{z_j}}$ <br> **Cross-Entropy Loss**: $L = -\sum_i y_i \ln(\hat{y}_i)$
 
 ## App System
 
@@ -133,28 +148,42 @@ An interactive Tkinter-based GUI that loads a trained model and allows real-time
 - **Controls**: "Predict" button triggers recognition, "Clear" button resets canvas
 
 **Workflow:**
-1. App initializes with pretrained model (default: model_1_95.28_0.5.npz)
+1. App initializes with pretrained model
 2. User draws digit on canvas
 3. Clicking "Predict" sends image through preprocessing pipeline
 4. Network pipeline forwards the normalized image through all layers
 5. Output layer produces 10 class probabilities via Softmax
 6. `argmax` selects the highest probability digit
-7. Result displayed on GUI
+7. Result displayed with confidence percentage
+8. Optional: Save drawn image with prediction metadata
 
 **Network Pipeline Components:**
 ```
 Input (784) → Layer1 (128) → ReLU → Layer2 (64) → ReLU → Output (10) → Softmax → Prediction
 ```
 
+**Key Features:**
+- Checkboxes for optional image saving
+- Real-time prediction display
+- Confidence percentage shown with prediction
+- Preprocessing: grayscale, invert, center, resize, normalize
+
 ## Usage
 
 ### Running the GUI Application
 
 ```bash
-python App.py
+python source/App.py
 ```
 
-Launch the interactive digit recognizer. Draw a digit and click "Predict" to see the AI's prediction.
+Launch the interactive digit recognizer:
+1. Click "Select model" and load a pretrained model from `models_data_storage/`
+2. Draw a digit (0-9) on the white canvas
+3. Check "Save image?" if you want to save the drawing
+4. Click "Predict" to see the AI's prediction with confidence
+5. Click "Clear" to reset and draw again
+
+**Example:** Draw a "7" → Prediction: 7 (99.45%)
 
 ### Training the Model
 
@@ -162,7 +191,7 @@ Launch the interactive digit recognizer. Draw a digit and click "Predict" to see
 python train.py
 ```
 
-Train a new model (results logged every 100 epochs).
+Train a new model from scratch (results logged every 100 epochs).
 
 **Example Output:**
 ```
@@ -172,40 +201,55 @@ Epoch: 200, Loss: 0.143, Accuracy: 0.956
 Epoch: 300, Loss: 0.115, Accuracy: 0.963
 ```
 
+Trained models are saved to `models_data_storage/` as NumPy `.npz` files.
+
+## Performance Metrics
+
+**Available Models:**
+- **Model 1**: 95.99% accuracy (0.5 learning rate)
+- **Model 2**: 97.04% accuracy (optimized training)
+
+**Training Configuration:**
+- **Epochs**: 1001
+- **Learning Rate**: 0.5
+- **Optimizer**: Stochastic Gradient Descent
+- **Batch Size**: Full batch
+- **Dataset**: MNIST (60,000 training images)
+- **Validation**: 10,000 test images
+
 ## Learning Outcomes
 
 This project demonstrates:
-- Neural network fundamentals from scratch
-- Forward and backward propagation mechanics
-- Activation functions (ReLU, Softmax) and loss functions
-- Matrix operations with NumPy
-- Image preprocessing and normalization
-- End-to-end ML system integration
+- **Neural Network Architecture**: Building networks from scratch without frameworks
+- **Forward Propagation**: How data flows through layers and activations
+- **Backpropagation**: Computing gradients and updating weights
+- **Activation Functions**: ReLU for hidden layers, Softmax for output
+- **Loss Functions**: Cross-entropy loss for multi-class classification
+- **Image Processing**: Preprocessing, normalization, and transformation
+- **End-to-End ML Systems**: Data → Model → Prediction → Visualization
 
-## Future Enhancements
-
-- Confidence scores with predictions
-- Test set evaluation script
-- Weight visualization
-- Hyperparameter tuning utilities
-- Batch normalization and regularization (L1/L2)
-- Additional model saving/loading options
 
 ## Dataset
 
-The MNIST dataset contains 70,000 handwritten digit images (28×28 pixels, 784 features when flattened):
-- 60,000 training images
-- 10,000 test images
-- Pixel values: 0-255 (normalized to [0, 1])
+The MNIST dataset contains 70,000 handwritten digit images (28×28 pixels):
+- **Training Set**: 60,000 images
+- **Test Set**: 10,000 images
+- **Format**: Binary IDX format (loaded via idx2numpy)
+- **Pixel Values**: 0-255 (normalized to [0, 1] for training)
 
-Source: [MNIST Database](http://yann.lecun.com/exdb/mnist/)
+Source: [MNIST Database by Yann LeCun](http://yann.lecun.com/exdb/mnist/)
+
 
 ## References
 
+- [Neural Networks and Deep Learning](http://neuralnetworksanddeeplearning.com/) - Michael Nielsen
 - [ReLU Activation Function](https://en.wikipedia.org/wiki/Rectifier_(neural_networks))
-- [Softmax & Cross-Entropy](https://en.wikipedia.org/wiki/Softmax_function)
+- [Softmax and Cross-Entropy](https://en.wikipedia.org/wiki/Softmax_function)
 - [Backpropagation Algorithm](https://en.wikipedia.org/wiki/Backpropagation)
-- [idx2numpy](https://github.com/ivanyu/idx2numpy)
-- [Neural Network and Deep Learning book by Michael Nielsen](http:neuralnetworksanddeeplearning.com/)
+- [MNIST Dataset](http://yann.lecun.com/exdb/mnist/)
+- [idx2numpy Library](https://github.com/ivanyu/idx2numpy)
+
+
+**Note**: This project was built to understand and dive into neural network mechanics. For production applications, use established frameworks like PyTorch, TensorFlow, or scikit-learn.
 
 
