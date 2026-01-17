@@ -9,18 +9,18 @@ A neural network implementation built from scratch using NumPy to recognize hand
 
 ## Table of Contents
 
-[Overview](#overview)
-[Architecture](#architecture)
-[Technologies & Dependencies](#technologies--dependencies)
-[Project Structure](#project-structure)
-[Core Components](#core-components)
-[How It Works](#how-it-works)
-[App System](#app-system)
-[Usage](#usage)
-[Learning outcomes](#learning-outcomes)
-[Future enchacements](#future-enchancements)
-[Dataset](#dataset)
-[References](#references)
+[Overview](#overview)<br>
+[Architecture](#architecture)<br>
+[Technologies & Dependencies](#technologies--dependencies)<br>
+[Project Structure](#project-structure)<br>
+[Core Components](#core-components)<br>
+[How It Works](#how-it-works)<br>
+[App System](#app-system)<br>
+[Usage](#usage)<br>
+[Learning outcomes](#learning-outcomes)<br>
+[Future enchacements](#future-enchancements)<br>
+[Dataset](#dataset)<br>
+[References](#references)<br>
 
 ## Overview
 
