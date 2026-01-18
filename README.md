@@ -65,16 +65,34 @@ source venv/bin/activate  # On Windows: venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
+4. Verify the structure:
+   - Ensure `dataset/` contains MNIST binary files
+   - Ensure `models_data_storage/` contains pretrained models
+   - Ensure `source/` contains the Python scripts
+
 ## Project Structure
 
 ```
 digit-recognizer/
-├── HDR.py              # Neural network implementation
-├── train.py            # Training script
-├── App.py              # Interactive GUI application
-├── README.md           # This file
-└── dataset/            # MNIST dataset files
-    └── (binary IDX format files)
+├── source/                          # Main source code
+│   ├── HDR.py                       # Neural network implementation
+│   ├── train.py                     # Training script
+│   ├── App.py                       # Interactive GUI application
+│   └── __pycache__/                 # Python cache
+├── dataset/                         # MNIST dataset files (binary IDX format)
+│   ├── train-images.idx3-ubyte      # 60,000 training images
+│   ├── train-labels.idx1-ubyte      # Training labels
+│   ├── t10k-images.idx3-ubyte       # 10,000 test images
+│   └── t10k-labels.idx1-ubyte       # Test labels
+├── models_data_storage/             # Pretrained model weights
+│   ├── model_1/
+│   │   └── model_1_95.99_0.5.npz    # Model with 95.99% accuracy
+│   └── model_2/
+│       └── model_2_97.04_0.5.npz    # Model with 97.04% accuracy
+├── user_input_storage/              # Storage for saved user drawings
+├── requirements.txt                 # Python dependencies
+├── README.md                        # This file
+└── LICENSE                          # Project license
 ```
 
 ## Core Components
@@ -179,16 +197,16 @@ python source/App.py
 Launch the interactive digit recognizer:
 1. Click "Select model" and load a pretrained model from `models_data_storage/`
 2. Draw a digit (0-9) on the white canvas
-3. Check "Save image?" if you want to save the drawing
+3. Check "Save image?" if you want to save the drawing (saved to `user_input_storage/`)
 4. Click "Predict" to see the AI's prediction with confidence
 5. Click "Clear" to reset and draw again
 
 **Example:** Draw a "7" → Prediction: 7 (99.45%)
 
-### Training the Model
+### Training a New Model
 
 ```bash
-python train.py
+python source/train.py
 ```
 
 Train a new model from scratch (results logged every 100 epochs).
@@ -201,7 +219,7 @@ Epoch: 200, Loss: 0.143, Accuracy: 0.956
 Epoch: 300, Loss: 0.115, Accuracy: 0.963
 ```
 
-Trained models are saved to `models_data_storage/` as NumPy `.npz` files.
+Trained models are saved to `models_data_storage/` as NumPy `.npz` files with naming convention: `model_<number>_<accuracy>_<learning_rate>.npz`
 
 ## Performance Metrics
 
