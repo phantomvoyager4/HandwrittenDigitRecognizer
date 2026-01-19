@@ -62,7 +62,8 @@ class App:
             self.app_window,
             text='Select Network model',
             font=('Helvetica', 20, 'bold'),
-            bg='#f0f0f0'
+            bg='#f0f0f0',
+            fg='black'
         )
         self.textlabel.pack(pady=10)
 
@@ -100,7 +101,8 @@ class App:
             text='Save image?',
             font=('Helvetica', 10),
             bg='#f0f0f0',
-            variable = self.v1
+            variable = self.v1,
+            fg='black'
         )
         self.save_checkbox.grid(row=3, column=0, columnspan=2, pady=10)
 
