@@ -38,9 +38,12 @@ class App:
             filetypes=[("NumPy Zip", "*.npz")]
         )
         if smp:
-            self.transfer_network(filepath=smp)
-            self.is_model_loaded = True
-            self.textlabel.config(text='Draw a digit')
+            try:
+                self.transfer_network(filepath=smp)
+                self.is_model_loaded = True
+                self.textlabel.config(text='Draw a digit')
+            except Exception as e:
+                self.textlabel.config(text=f'Error loading model: {str(e)}')
 
     def __init__(self):
         self.app_window = Tk()

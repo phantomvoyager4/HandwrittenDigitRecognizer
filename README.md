@@ -25,8 +25,8 @@ A neural network implementation built from scratch using NumPy to recognize hand
 ## Overview
 
 **Key Performance Metrics:**
-- Accuracy: ~95%
-- Training Epochs: 1001
+- Accuracy: 95-97% (depending on activation function and training)
+- Training Epochs: 1000
 - Dataset: MNIST (60,000 training images, 10,000 test images)
 - Input Size: 784 pixels (28×28 images)
 - Output Classes: 10 (digits 0-9)
@@ -35,8 +35,8 @@ A neural network implementation built from scratch using NumPy to recognize hand
 
 The neural network consists of:
 - **Input Layer**: 784 neurons (flattened 28×28 pixel images)
-- **Hidden Layer 1**: 128 neurons with ReLU activation
-- **Hidden Layer 2**: 64 neurons with ReLU activation
+- **Hidden Layer 1**: 128 neurons with ReLU or GELU activation (user selectable)
+- **Hidden Layer 2**: 64 neurons with ReLU or GELU activation (user selectable)
 - **Output Layer**: 10 neurons with Softmax activation (one per digit)
 
 ## Technologies & Dependencies
@@ -75,7 +75,7 @@ pip install -r requirements.txt
 ```
 digit-recognizer/
 ├── source/                          # Main source code
-│   ├── HDR.py                       # Neural network implementation
+│   ├── model.py                     # Neural network implementation
 │   ├── train.py                     # Training script
 │   ├── App.py                       # Interactive GUI application
 │   └── __pycache__/                 # Python cache
@@ -97,21 +97,26 @@ digit-recognizer/
 
 ## Core Components
 
-### HDR.py - Neural Network Implementation
+### model.py - Neural Network Implementation
 
 #### `data_handling(pathimages, pathlabels)`
 Loads MNIST data from IDX binary format and normalizes pixel values to [0, 1] range.
 
 #### `Layer` Class
 Implements a fully connected neural network layer with:
-- **Forward Propagation**: `fpropagation(input)` - Computes weighted sum and bias
-- **Backward Propagation**: `backward(backwardpass)` - Calculates gradients for weights, biases, and inputs
+- **Forward Propagation**: `forward(input)` - Computes weighted sum and bias
+- **Backward Propagation**: `backward(dvalues)` - Calculates gradients for weights, biases, and inputs
 - Weights initialized with small random values for stability
 
-#### `Activation` Class
+#### `Activation_RELU` Class
 Implements ReLU (Rectified Linear Unit) activation function:
 - **Forward**: `max(0, x)` - Non-linear activation
 - **Backward**: Gradient passing for backpropagation
+
+#### `Activation_GELU` Class
+Implements GELU (Gaussian Error Linear Unit) activation function:
+- **Forward**: Tanh-based approximation with numerical stability
+- **Backward**: Exact derivative calculation using stored intermediate values
 
 #### `Softmax` Class
 Converts raw network output to probability distribution:
@@ -130,12 +135,17 @@ Combines Softmax and Loss for efficient gradient calculation:
 
 #### `Optimizer` Class
 Implements basic Stochastic Gradient Descent (SGD):
-- Adjusts weights and biases using learning rate
-- Simple parameter update rule: $\theta = \theta - \alpha \cdot \nabla\theta$
+- Adjusts weights and biases usthe following features:
+- **Activation Function Selection**: Choose between GELU and ReLU at runtime
+- **Training Configuration**: 1000 epochs with learning rate 0.5
+- **Logging**: Displays loss and accuracy every 100 epochs
+- **Evaluation**: Tests on validation set periodically/GELU) → Layer 2 (64 neurons, ReLU/GELU) → Output (10 classes, Softmax) → Loss
+
+**Backward Propagation**: Computes gradients through Softmax/Loss, propagates back through both hidden layers with proper activation derivative
 
 ### train.py - Training Script
 
-Trains the neural network with configurable parameters (learning rate 0.5, 400 epochs). Includes periodic loss and accuracy logging.
+Trains the neural network with configGELU**: $f(x) = 0.5x(1 + \tanh(\sqrt{2/\pi}(x + 0.044715x^3)))$ <br> **urable parameters (learning rate 0.5, 400 epochs). Includes periodic loss and accuracy logging.
 
 ## How It Works
 
@@ -155,7 +165,8 @@ An interactive Tkinter-based GUI that loads a trained model and allows real-time
 
 **Key Features:**
 - **Model Loading**: `transfer_network()` loads pretrained weights from saved `.npz` files
-- **Network Pipeline**: Implements the full neural network using loaded layers and activations
+- **Activation Function Selection**: Dropdown menu to choose between GELU and ReLU for inference
+- **Network Pipeline**: Implements the full neural network using loaded layers and selected activation
 - **Drawing Canvas**: 300×300 pixel drawing area with black ink on white background
 - **Image Processing**: Converts hand-drawn images to normalized 28×28 pixel format matching MNIST specifications
   - Grayscales and inverts the image
@@ -177,14 +188,16 @@ An interactive Tkinter-based GUI that loads a trained model and allows real-time
 
 **Network Pipeline Components:**
 ```
-Input (784) → Layer1 (128) → ReLU → Layer2 (64) → ReLU → Output (10) → Softmax → Prediction
+Input (784) → Layer1 (128) → [ReLU/GELU] → Layer2 (64) → [ReLU/GELU] → Output (10) → Softmax → Prediction
 ```
 
-**Key Features:**
-- Checkboxes for optional image saving
+**UI Features:**
+- Activation function dropdown (GELU or ReLU)
+- Checkbox for optional image saving
 - Real-time prediction display
 - Confidence percentage shown with prediction
 - Preprocessing: grayscale, invert, center, resize, normalize
+- Saves images to `user_input_storage/` with timestamp and confidence
 
 ## Usage
 
@@ -207,37 +220,47 @@ Launch the interactive digit recognizer:
 
 ```bash
 python source/train.py
-```
-
-Train a new model from scratch (results logged every 100 epochs).
+```with the following workflow:
+1. Script prompts: "Choose activation function, 1 for GELU, 2 for RELU:"
+2. Training begins and logs results every 100 epochs
+3. Model is automatically saved with accuracy metrics
 
 **Example Output:**
 ```
-Epoch: 0, Loss: 2.297, Accuracy: 0.107
-Epoch: 100, Loss: 0.218, Accuracy: 0.935
-Epoch: 200, Loss: 0.143, Accuracy: 0.956
-Epoch: 300, Loss: 0.115, Accuracy: 0.963
+Choose activation function, 1 for GELU, 2 for RELU: 1
+Starting training
+Epoch: 0, Loss: 2.297,Accuracy:0.107 Test_Accuracy: 0.110
+Epoch: 100, Loss: 0.218,Accuracy:0.935 Test_Accuracy: 0.920
+Epoch: 200, Loss: 0.143,Accuracy:0.956 Test_Accuracy: 0.945
 ```
 
-Trained models are saved to `models_data_storage/` as NumPy `.npz` files with naming convention: `model_<number>_<accuracy>_<learning_rate>.npz`
+**Model Saving**: Trained models are automatically saved to `models_data_storage/` as NumPy `.npz` files with naming convention: `model_<number>_<accuracy>_<learning_rate>.npz`
 
-## Performance Metrics
-
-**Available Models:**
-- **Model 1**: 95.99% accuracy (0.5 learning rate)
-- **Model 2**: 97.04% accuracy (optimized training)
+**Important**: Always use the **same activation function** in the app during inference that was used during training for optimal accuracy.
+test accuracy (trained with 0.5 learning rate)
+- **Model 2**: 97.04% test accuracy (trained with 0.5 learning rate)
 
 **Training Configuration:**
+- **Epochs**: 1000
+- **Learning Rate**: 0.5
+- **Optimizer**: Stochastic Gradient Descent (SGD)
+- **Batch Size**: Full batch (all 60,000 training samples)
+- **Dataset**: MNIST (60,000 training images, 10,000 test images)
+- **Activation Functions**: Both GELU and ReLU supported
+- **Validation**: Test accuracy evaluated every 100 epoch
 - **Epochs**: 1001
 - **Learning Rate**: 0.5
 - **Optimizer**: Stochastic Gradient Descent
 - **Batch Size**: Full batch
 - **Dataset**: MNIST (60,000 training images)
-- **Validation**: 10,000 test images
-
-## Learning Outcomes
-
-This project demonstrates:
+- **Validation**: 10,000 test imageswith respect to activation functions
+- **Activation Functions**: Understanding ReLU (piecewise linear) vs GELU (smooth, differentiable)
+- **Derivative Computation**: Implementing correct backward passes for different activation functions
+- **Loss Functions**: Cross-entropy loss for multi-class classification
+- **Image Processing**: Preprocessing, normalization, and transformation
+- **GUI Development**: Building interactive applications with Tkinter
+- **Model Serialization**: Saving and loading trained neural networks
+- **End-to-End ML Systems**: Data → Model → Training → Inference
 - **Neural Network Architecture**: Building networks from scratch without frameworks
 - **Forward Propagation**: How data flows through layers and activations
 - **Backpropagation**: Computing gradients and updating weights

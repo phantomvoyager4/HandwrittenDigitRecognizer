@@ -11,12 +11,15 @@ images, labels = data_handling(pathimagess, pathlabelss)
 
 hidden_layer1 = Layer(n_inputs=784, n_neurons=128)
 activation_funtion = int(input('Choose activation function, 1 for GELU, 2 for RELU:'))
-if activation_funtion == 1:
-    activation = Activation_GELU()
-elif activation_funtion == 2:
-    activation = Activation_RELU()
-else: 
-    print('invalid input')
+while True:
+    if activation_funtion == 1:
+        activation = Activation_GELU()
+        break
+    elif activation_funtion == 2:
+        activation = Activation_RELU()
+        break
+    else: 
+        print('invalid input. 1 for GELU, 2 for RELU:')
 
 hidden_layer2 = Layer(n_inputs=128, n_neurons=64)
 output_layer = Layer(n_inputs=64, n_neurons=10)
@@ -26,7 +29,7 @@ network = [hidden_layer1, activation, hidden_layer2, activation, output_layer]
 trainable_layers = [hidden_layer1, hidden_layer2, output_layer]
 
 print('Starting training')
-for epoch in range (1001):
+for epoch in range (1000):
     current_input = images
     for layer in network:
         iteration = layer.forward(current_input)
@@ -34,8 +37,8 @@ for epoch in range (1001):
 
     loss = loss_activation.forward(current_input, labels)
 
-    highestchangebyrow = np.argmax(current_input, axis=1)
-    comparison = np.equal(highestchangebyrow, labels)
+    highest_change_by_row = np.argmax(current_input, axis=1)
+    comparison = np.equal(highest_change_by_row, labels)
     accuracy = np.mean(comparison)
         
     dvalues = loss_activation.backward(labels)
