@@ -36,11 +36,15 @@ class Activation_RELU:
 class Activation_GELU:
     def forward(self, input):
         self.input = input
-        self.output = 0.5 * input * (1 + np.tanh(np.sqrt(2 / np.pi) * (input + 0.044715 * (input ** 3))))
+        self.tanh_arg = np.sqrt(2 / np.pi) * (input + 0.044715 * (input ** 3))
+        self.tanh_val = np.tanh(self.tanh_arg)
+        self.output = 0.5 * input * (1 + self.tanh_val)
         return self.output
     def backward(self, dvalues):
-        self.dinputs = dvalues.copy()
-        self.dinputs[self.input <= 0] = 0
+        sech_squared = 1 - self.tanh_val ** 2
+        d_tanh_arg = np.sqrt(2 / np.pi) * (1 + 3 * 0.044715 * (self.input ** 2))
+        gelu_derivative = 0.5 * (1 + self.tanh_val) + 0.5 * self.input * sech_squared * d_tanh_arg
+        self.dinputs = dvalues * gelu_derivative
         return self.dinputs
 
 class Softmax:

@@ -1,4 +1,4 @@
-from source.model import Layer, Activation_GELU, Softmax
+from model import Layer, Activation_GELU,Activation_RELU, Softmax
 from tkinter import *
 from tkinter import filedialog
 from PIL import Image, ImageDraw, ImageOps
@@ -13,7 +13,10 @@ class App:
         self.layer1 = Layer(n_inputs=784, n_neurons=128)
         self.layer2 = Layer(n_inputs=128, n_neurons=64)
         self.output_layer = Layer(n_inputs=64, n_neurons=10)
-        self.activation = Activation_GELU() # to be done = choosing  activation function
+        if self.activation_var.get() == 'GELU':
+            self.activation = Activation_GELU()
+        elif self.activation_var.get() == 'ReLU':
+            self.activation = Activation_RELU()
         self.softmax = Softmax()
         trainable_layers = [self.layer1, self.layer2, self.output_layer]
 
@@ -42,7 +45,7 @@ class App:
     def __init__(self):
         self.app_window = Tk()
         self.is_model_loaded = False
-        self.app_window.geometry('400x600')
+        self.app_window.geometry('450x650')
         self.app_window.title('Digit Recognizer AI')
         self.app_window.configure(bg='#f0f0f0')
 
@@ -103,8 +106,22 @@ class App:
             bg='#f0f0f0',
             variable = self.v1,
             fg='black'
-        )
-        self.save_checkbox.grid(row=3, column=0, columnspan=2, pady=10)
+        ).grid(row=3, column=0, columnspan=3, pady=10)
+
+        Label(
+            control_frame,
+            text='Activation:',
+            font=('Helvetica', 10),
+            bg='#f0f0f0'
+        ).grid(row=4, column=0, padx=10, pady=1)
+
+        self.activation_var = StringVar(value='GELU')
+        OptionMenu(
+            control_frame,
+            self.activation_var,
+            'GELU',
+            'ReLU'
+        ).grid(row=4, column=1, padx=10, pady=10)
 
         self.image = Image.new(mode='RGB', size=(300, 300), color='white')
         self.draw = ImageDraw.Draw(self.image)
@@ -116,6 +133,9 @@ class App:
     def activate_event(self, event):
         self.last_x = event.x
         self.last_y = event.y
+
+    
+
 
     def draw_line(self, event):
         x = event.x
@@ -194,3 +214,5 @@ class App:
     
 
 app1 = App()
+
+
