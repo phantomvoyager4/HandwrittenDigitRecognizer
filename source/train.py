@@ -13,10 +13,12 @@ hidden_layer1 = Layer(n_inputs=784, n_neurons=128)
 activation_funtion = int(input('Choose activation function, 1 for GELU, 2 for RELU:'))
 while True:
     if activation_funtion == 1:
-        activation = Activation_GELU()
+        activation1 = Activation_GELU()
+        activation2 = Activation_GELU()
         break
     elif activation_funtion == 2:
-        activation = Activation_RELU()
+        activation1 = Activation_RELU()
+        activation2 = Activation_RELU()
         break
     else: 
         print('invalid input. 1 for GELU, 2 for RELU:')
@@ -25,7 +27,7 @@ hidden_layer2 = Layer(n_inputs=128, n_neurons=64)
 output_layer = Layer(n_inputs=64, n_neurons=10)
 loss_activation = Backpropagation()
 optimization = Optimizer(0.5)
-network = [hidden_layer1, activation, hidden_layer2, activation, output_layer]
+network = [hidden_layer1, activation1, hidden_layer2, activation2, output_layer]
 trainable_layers = [hidden_layer1, hidden_layer2, output_layer]
 
 print('Starting training')

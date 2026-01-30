@@ -248,7 +248,7 @@ test accuracy (trained with 0.5 learning rate)
 - **Dataset**: MNIST (60,000 training images, 10,000 test images)
 - **Activation Functions**: Both GELU and ReLU supported
 - **Validation**: Test accuracy evaluated every 100 epoch
-- **Epochs**: 1001
+- **Epochs**: 1000
 - **Learning Rate**: 0.5
 - **Optimizer**: Stochastic Gradient Descent
 - **Batch Size**: Full batch
