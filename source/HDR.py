@@ -23,10 +23,20 @@ class Layer:
         self.dinputs = np.dot(dvalues, self.weights.T)
         return self.dinputs
 
-class Activation:
+class Activation_GELU:
     def forward(self, input):
         self.input = input
         self.output= np.maximum(0, input)
+        return self.output
+    def backward(self, dvalues):
+        self.dinputs = dvalues.copy()
+        self.dinputs[self.input <= 0] = 0
+        return self.dinputs
+    
+class Activation_RElU:
+    def forward(self, input):
+        self.input = input
+        self.output = 0.5 * input * (1 + np.tanh(np.sqrt(2 / np.pi) * (input + 0.044715 + (input ** 3))))
         return self.output
     def backward(self, dvalues):
         self.dinputs = dvalues.copy()
