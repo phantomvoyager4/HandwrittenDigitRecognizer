@@ -1,4 +1,4 @@
-from HDR import Layer, Activation_GELU, Softmax
+from source.model import Layer, Activation_GELU, Softmax
 from tkinter import *
 from tkinter import filedialog
 from PIL import Image, ImageDraw, ImageOps
@@ -13,7 +13,7 @@ class App:
         self.layer1 = Layer(n_inputs=784, n_neurons=128)
         self.layer2 = Layer(n_inputs=128, n_neurons=64)
         self.output_layer = Layer(n_inputs=64, n_neurons=10)
-        self.activation = Activation_GELU()
+        self.activation = Activation_GELU() # to be done = choosing  activation function
         self.softmax = Softmax()
         trainable_layers = [self.layer1, self.layer2, self.output_layer]
 

@@ -1,5 +1,5 @@
 import numpy as np
-from HDR import data_handling, Layer, Activation, Optimizer, Backpropagation
+from model import data_handling, Layer, Activation_GELU, Activation_RELU, Optimizer, Backpropagation
 import os #for model versioning
 
 pathimagess = 'dataset/train-images.idx3-ubyte'
@@ -10,15 +10,22 @@ testimages, testlabels = data_handling(test_images_path, test_labels_path)
 images, labels = data_handling(pathimagess, pathlabelss)
 
 hidden_layer1 = Layer(n_inputs=784, n_neurons=128)
-activation1 = Activation()
-activation2 = Activation()
+activation_funtion = int(input('Choose activation function, 1 for GELU, 2 for RELU:'))
+if activation_funtion == 1:
+    activation = Activation_GELU()
+elif activation_funtion == 2:
+    activation = Activation_RELU()
+else: 
+    print('invalid input')
+
 hidden_layer2 = Layer(n_inputs=128, n_neurons=64)
 output_layer = Layer(n_inputs=64, n_neurons=10)
 loss_activation = Backpropagation()
 optimization = Optimizer(0.5)
-network = [hidden_layer1, activation1, hidden_layer2, activation2, output_layer]
+network = [hidden_layer1, activation, hidden_layer2, activation, output_layer]
 trainable_layers = [hidden_layer1, hidden_layer2, output_layer]
 
+print('Starting training')
 for epoch in range (1001):
     current_input = images
     for layer in network:
