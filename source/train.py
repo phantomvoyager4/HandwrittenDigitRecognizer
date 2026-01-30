@@ -46,7 +46,8 @@ for epoch in range (1001):
         predicted = np.argmax(training_current_input, axis=1)
         comparison_test = np.equal(predicted, testlabels)
         accuracy_test = np.mean(comparison_test)
-        print(f"Epoch: {epoch}, Loss: {loss:.3f}, Accuracy: {accuracy_test:.3f}")
+        print(f"Epoch: {epoch}, Loss: {loss:.3f},Accuracy:{accuracy:.3f} Test_Accuracy: {accuracy_test:.3f}")
+    
     
 models_folder_path = "models_data_storage"
 model_version_number = 1

@@ -98,7 +98,7 @@ class App:
         self.v1 = IntVar()
         self.save_checkbox = Checkbutton(
             control_frame,
-            text='Save image?',
+            text='Save image',
             font=('Helvetica', 10),
             bg='#f0f0f0',
             variable = self.v1,
