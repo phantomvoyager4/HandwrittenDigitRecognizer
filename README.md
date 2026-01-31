@@ -232,7 +232,6 @@ Starting training
 Epoch: 0, Loss: 2.297,Accuracy:0.107 Test_Accuracy: 0.110
 Epoch: 100, Loss: 0.218,Accuracy:0.935 Test_Accuracy: 0.920
 Epoch: 200, Loss: 0.143,Accuracy:0.956 Test_Accuracy: 0.945
-```
 
 **Model Saving**: Trained models are automatically saved to `models_data_storage/` as NumPy `.npz` files with naming convention: `model_<number>_<accuracy>_<learning_rate>.npz`
 
