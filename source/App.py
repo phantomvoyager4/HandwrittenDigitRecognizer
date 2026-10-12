@@ -1,4 +1,4 @@
-from model import Layer, Activation_GELU,Activation_RELU, Softmax
+from model import Layer,Activation_RELU, Softmax
 from tkinter import *
 from tkinter import filedialog
 from PIL import Image, ImageDraw, ImageOps
@@ -13,10 +13,7 @@ class App:
         self.layer1 = Layer(n_inputs=784, n_neurons=128)
         self.layer2 = Layer(n_inputs=128, n_neurons=64)
         self.output_layer = Layer(n_inputs=64, n_neurons=10)
-        if self.activation_var.get() == 'GELU':
-            self.activation = Activation_GELU()
-        elif self.activation_var.get() == 'ReLU':
-            self.activation = Activation_RELU()
+        self.activation = Activation_RELU()
         self.softmax = Softmax()
         trainable_layers = [self.layer1, self.layer2, self.output_layer]
 
@@ -111,20 +108,6 @@ class App:
             fg='black'
         ).grid(row=3, column=0, columnspan=3, pady=10)
 
-        Label(
-            control_frame,
-            text='Activation:',
-            font=('Helvetica', 10),
-            bg='#f0f0f0'
-        ).grid(row=4, column=0, padx=10, pady=1)
-
-        self.activation_var = StringVar(value='GELU')
-        OptionMenu(
-            control_frame,
-            self.activation_var,
-            'GELU',
-            'ReLU'
-        ).grid(row=4, column=1, padx=10, pady=10)
 
         self.image = Image.new(mode='RGB', size=(300, 300), color='white')
         self.draw = ImageDraw.Draw(self.image)

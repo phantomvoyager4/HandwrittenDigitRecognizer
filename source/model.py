@@ -11,7 +11,7 @@ def data_handling(pathimages, pathlabels):
 
 class Layer:
     def __init__(self, n_inputs, n_neurons):
-        self.weights = np.random.randn(n_inputs, n_neurons) * 0.01
+        self.weights = np.random.randn(n_inputs, n_neurons) * np.sqrt(2 / n_inputs)
         self.biases = np.zeros((1, n_neurons))
     def forward(self, input):
         self.input = input 
@@ -31,20 +31,6 @@ class Activation_RELU:
     def backward(self, dvalues):
         self.dinputs = dvalues.copy()
         self.dinputs[self.input <= 0] = 0
-        return self.dinputs
-    
-class Activation_GELU:
-    def forward(self, input):
-        self.input = input
-        self.tanh_arg = np.sqrt(2 / np.pi) * (input + 0.044715 * (input ** 3))
-        self.tanh_val = np.tanh(self.tanh_arg)
-        self.output = 0.5 * input * (1 + self.tanh_val)
-        return self.output
-    def backward(self, dvalues):
-        sech_squared = 1 - self.tanh_val ** 2
-        d_tanh_arg = np.sqrt(2 / np.pi) * (1 + 3 * 0.044715 * (self.input ** 2))
-        gelu_derivative = 0.5 * (1 + self.tanh_val) + 0.5 * self.input * sech_squared * d_tanh_arg
-        self.dinputs = dvalues * gelu_derivative
         return self.dinputs
 
 class Softmax:

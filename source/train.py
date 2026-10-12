@@ -1,5 +1,5 @@
 import numpy as np
-from model import data_handling, Layer, Activation_GELU, Activation_RELU, Optimizer, Backpropagation
+from model import data_handling, Layer, Activation_RELU, Optimizer, Backpropagation
 import os #for model versioning
 
 pathimagess = 'dataset/train-images.idx3-ubyte'
@@ -10,18 +10,10 @@ testimages, testlabels = data_handling(test_images_path, test_labels_path)
 images, labels = data_handling(pathimagess, pathlabelss)
 
 hidden_layer1 = Layer(n_inputs=784, n_neurons=128)
-activation_funtion = int(input('Choose activation function, 1 for GELU, 2 for RELU:'))
-while True:
-    if activation_funtion == 1:
-        activation1 = Activation_GELU()
-        activation2 = Activation_GELU()
-        break
-    elif activation_funtion == 2:
-        activation1 = Activation_RELU()
-        activation2 = Activation_RELU()
-        break
-    else: 
-        print('invalid input. 1 for GELU, 2 for RELU:')
+
+activation1 = Activation_RELU()
+activation2 = Activation_RELU()
+ 
 
 hidden_layer2 = Layer(n_inputs=128, n_neurons=64)
 output_layer = Layer(n_inputs=64, n_neurons=10)
@@ -51,7 +43,7 @@ for epoch in range (1000):
     for layer in trainable_layers:
         optimization.adjust_parameters(layer)
 
-    if epoch % 100 == 0:
+    if epoch % 100 == 0 or epoch == 999:
         training_current_input = testimages
         for layer in network:
             training_current_input = layer.forward(training_current_input)

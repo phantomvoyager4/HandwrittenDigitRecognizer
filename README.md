@@ -35,8 +35,8 @@ A neural network implementation built from scratch using NumPy to recognize hand
 
 The neural network consists of:
 - **Input Layer**: 784 neurons (flattened 28×28 pixel images)
-- **Hidden Layer 1**: 128 neurons with ReLU or GELU activation (user selectable)
-- **Hidden Layer 2**: 64 neurons with ReLU or GELU activation (user selectable)
+- **Hidden Layer 1**: 128 neurons with ReLU activation (user selectable)
+- **Hidden Layer 2**: 64 neurons with ReLU activation (user selectable)
 - **Output Layer**: 10 neurons with Softmax activation (one per digit)
 
 ## Technologies & Dependencies
@@ -113,11 +113,6 @@ Implements ReLU (Rectified Linear Unit) activation function:
 - **Forward**: `max(0, x)` - Non-linear activation
 - **Backward**: Gradient passing for backpropagation
 
-#### `Activation_GELU` Class
-Implements GELU (Gaussian Error Linear Unit) activation function:
-- **Forward**: Tanh-based approximation with numerical stability
-- **Backward**: Exact derivative calculation using stored intermediate values
-
 #### `Softmax` Class
 Converts raw network output to probability distribution:
 - Numerically stable implementation with max subtraction
@@ -136,10 +131,9 @@ Combines Softmax and Loss for efficient gradient calculation:
 #### `Optimizer` Class
 Implements basic Stochastic Gradient Descent (SGD):
 - Adjusts weights and biases usthe following features:
-- **Activation Function Selection**: Choose between GELU and ReLU at runtime
 - **Training Configuration**: 1000 epochs with learning rate 0.5
 - **Logging**: Displays loss and accuracy every 100 epochs
-- **Evaluation**: Tests on validation set periodically/GELU) → Layer 2 (64 neurons, ReLU/GELU) → Output (10 classes, Softmax) → Loss
+- **Evaluation**: Tests on validation set periodically → Layer 2 (64 neurons, ReLU) → Output (10 classes, Softmax) → Loss
 
 **Backward Propagation**: Computes gradients through Softmax/Loss, propagates back through both hidden layers with proper activation derivative
 
@@ -165,7 +159,6 @@ An interactive Tkinter-based GUI that loads a trained model and allows real-time
 
 **Key Features:**
 - **Model Loading**: `transfer_network()` loads pretrained weights from saved `.npz` files
-- **Activation Function Selection**: Dropdown menu to choose between GELU and ReLU for inference
 - **Network Pipeline**: Implements the full neural network using loaded layers and selected activation
 - **Drawing Canvas**: 300×300 pixel drawing area with black ink on white background
 - **Image Processing**: Converts hand-drawn images to normalized 28×28 pixel format matching MNIST specifications
@@ -188,11 +181,10 @@ An interactive Tkinter-based GUI that loads a trained model and allows real-time
 
 **Network Pipeline Components:**
 ```
-Input (784) → Layer1 (128) → [ReLU/GELU] → Layer2 (64) → [ReLU/GELU] → Output (10) → Softmax → Prediction
+Input (784) → Layer1 (128) → [ReLU] → Layer2 (64) → [ReLU] → Output (10) → Softmax → Prediction
 ```
 
 **UI Features:**
-- Activation function dropdown (GELU or ReLU)
 - Checkbox for optional image saving
 - Real-time prediction display
 - Confidence percentage shown with prediction
@@ -221,13 +213,11 @@ Launch the interactive digit recognizer:
 ```bash
 python source/train.py
 ```with the following workflow:
-1. Script prompts: "Choose activation function, 1 for GELU, 2 for RELU:"
-2. Training begins and logs results every 100 epochs
-3. Model is automatically saved with accuracy metrics
+1. Training begins and logs results every 100 epochs
+2. Model is automatically saved with accuracy metrics
 
 **Example Output:**
 ```
-Choose activation function, 1 for GELU, 2 for RELU: 1
 Starting training
 Epoch: 0, Loss: 2.297,Accuracy:0.107 Test_Accuracy: 0.110
 Epoch: 100, Loss: 0.218,Accuracy:0.935 Test_Accuracy: 0.920
@@ -245,7 +235,6 @@ test accuracy (trained with 0.5 learning rate)
 - **Optimizer**: Stochastic Gradient Descent (SGD)
 - **Batch Size**: Full batch (all 60,000 training samples)
 - **Dataset**: MNIST (60,000 training images, 10,000 test images)
-- **Activation Functions**: Both GELU and ReLU supported
 - **Validation**: Test accuracy evaluated every 100 epoch
 - **Epochs**: 1000
 - **Learning Rate**: 0.5
@@ -253,7 +242,6 @@ test accuracy (trained with 0.5 learning rate)
 - **Batch Size**: Full batch
 - **Dataset**: MNIST (60,000 training images)
 - **Validation**: 10,000 test imageswith respect to activation functions
-- **Activation Functions**: Understanding ReLU (piecewise linear) vs GELU (smooth, differentiable)
 - **Derivative Computation**: Implementing correct backward passes for different activation functions
 - **Loss Functions**: Cross-entropy loss for multi-class classification
 - **Image Processing**: Preprocessing, normalization, and transformation
