@@ -45,6 +45,7 @@ The neural network consists of:
 - **NumPy 1.24.3**: Numerical computing and matrix operations
 - **idx2numpy 1.2.3**: For loading and converting MNIST IDX binary format
 - **Pillow 10.0.0**: Image processing for UI input
+- **Matplotlib 3.7.5**: Live accuracy plots during training
 
 ### Installation
 
@@ -77,6 +78,7 @@ digit-recognizer/
 ├── source/                          # Main source code
 │   ├── model.py                     # Neural network implementation
 │   ├── train.py                     # Training script
+│   ├── plot.py                      # Live accuracy plots for training
 │   ├── App.py                       # Interactive GUI application
 │   └── __pycache__/                 # Python cache
 ├── dataset/                         # MNIST dataset files (binary IDX format)
@@ -214,7 +216,8 @@ Launch the interactive digit recognizer:
 python source/train.py
 ```with the following workflow:
 1. Training begins and logs results every 100 epochs
-2. Model is automatically saved with accuracy metrics
+2. A window with two live plots shows training accuracy (every epoch) and test accuracy (every 100 epochs)
+3. Model is automatically saved with accuracy metrics, along with the two plots as `model_<number>_accuracy.png` in the same folder; the plot window stays open until you close it
 
 **Example Output:**
 ```
