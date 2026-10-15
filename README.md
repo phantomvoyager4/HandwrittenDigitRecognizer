@@ -79,6 +79,7 @@ digit-recognizer/
 │   ├── model.py                     # Neural network implementation
 │   ├── train.py                     # Training script
 │   ├── plot.py                      # Live accuracy plots for training
+│   ├── raport.py                    # Training report (bias, variance, best accuracy, per-digit metrics)
 │   ├── App.py                       # Interactive GUI application
 │   └── __pycache__/                 # Python cache
 ├── dataset/                         # MNIST dataset files (binary IDX format)
@@ -218,6 +219,7 @@ python source/train.py
 1. Training begins and logs results every 100 epochs
 2. A window with two live plots shows training accuracy (every epoch) and test accuracy (every 100 epochs)
 3. Model is automatically saved with accuracy metrics, along with the two plots as `model_<number>_accuracy.png` in the same folder; the plot window stays open until you close it
+4. A training report is printed and saved as `model_<number>_raport.txt`: configuration and training time, final accuracy, bias and variance, maximum accuracy and its epoch, convergence speed, sudden accuracy drops, and per-digit accuracy (recall), precision and F1 on the test set
 
 **Example Output:**
 ```

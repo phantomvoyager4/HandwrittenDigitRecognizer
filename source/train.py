@@ -1,7 +1,9 @@
 import numpy as np
 from model import data_handling, Layer, Activation_RELU, Optimizer, Backpropagation
 from plot import AccuracyPlot
+from raport import create_raport, save_raport
 import os #for model versioning
+import time
 
 pathimagess = 'dataset/train-images.idx3-ubyte'
 pathlabelss = 'dataset/train-labels.idx1-ubyte'
@@ -27,6 +29,7 @@ epochs = 1000
 accuracy_plot = AccuracyPlot(epochs)
 
 print('Starting training')
+start_time = time.time()
 for epoch in range (epochs):
     current_input = images
     for layer in network:
@@ -58,6 +61,7 @@ for epoch in range (epochs):
         accuracy_plot.add_test_accuracy(epoch, accuracy_test)
         print(f"Epoch: {epoch}, Loss: {loss:.3f},Accuracy:{accuracy:.3f} Test_Accuracy: {accuracy_test:.3f}")
     accuracy_plot.refresh()
+training_time = time.time() - start_time
     
     
 models_folder_path = "models_data_storage"
@@ -83,4 +87,19 @@ for index,layer in enumerate(trainable_layers):
 np.savez(fullpath, **savedata)
 
 accuracy_plot.save(f"{model_path}/model_{model_version_number}_accuracy.png")
+#predicted holds the test set predictions from the last epoch, i.e. of the saved model
+raport = create_raport(
+    model_name=f"model_{model_version_number}",
+    network=network,
+    learning_rate=model_lr,
+    training_time=training_time,
+    train_epochs=accuracy_plot.train_epochs,
+    train_accuracy=accuracy_plot.train_accuracy,
+    test_epochs=accuracy_plot.test_epochs,
+    test_accuracy=accuracy_plot.test_accuracy,
+    test_predictions=predicted,
+    test_labels=testlabels,
+)
+print(raport)
+save_raport(raport, f"{model_path}/model_{model_version_number}_raport.txt")
 accuracy_plot.show()
