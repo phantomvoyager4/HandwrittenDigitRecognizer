@@ -1,6 +1,5 @@
 # Handwritten Digit Recognizer (神经网络)
 
-
 A neural network implementation built from scratch using NumPy to recognize handwritten digits trained on the MNIST dataset. This project demonstrates core deep learning concepts including forward propagation, backpropagation, activation functions, and optimization techniques.
 
 <p align="center">
@@ -17,15 +16,16 @@ A neural network implementation built from scratch using NumPy to recognize hand
 [How It Works](#how-it-works)<br>
 [App System](#app-system)<br>
 [Usage](#usage)<br>
-[Learning outcomes](#learning-outcomes)<br>
-[Future enchacements](#future-enchancements)<br>
+[Benchmark](#benchmark)<br>
+[Learning Outcomes](#learning-outcomes)<br>
 [Dataset](#dataset)<br>
 [References](#references)<br>
 
 ## Overview
 
 **Key Performance Metrics:**
-- Accuracy: 95-97% (depending on activation function and training)
+
+- Accuracy: 97.52% on the test set, 99.10% on the training set (current model, see [Benchmark](#benchmark))
 - Training Epochs: 1000
 - Dataset: MNIST (60,000 training images, 10,000 test images)
 - Input Size: 784 pixels (28×28 images)
@@ -34,6 +34,7 @@ A neural network implementation built from scratch using NumPy to recognize hand
 ## Architecture
 
 The neural network consists of:
+
 - **Input Layer**: 784 neurons (flattened 28×28 pixel images)
 - **Hidden Layer 1**: 128 neurons with ReLU activation (user selectable)
 - **Hidden Layer 2**: 64 neurons with ReLU activation (user selectable)
@@ -50,18 +51,21 @@ The neural network consists of:
 ### Installation
 
 1. Clone the repository:
+
 ```bash
 git clone https://github.com/yourusername/digit-recognizer.git
 cd digit-recognizer
 ```
 
 2. Create a virtual environment (optional but recommended):
+
 ```bash
 python -m venv venv
 source venv/bin/activate  # On Windows: venv\Scripts\activate
 ```
 
 3. Install dependencies:
+
 ```bash
 pip install -r requirements.txt
 ```
@@ -88,10 +92,10 @@ digit-recognizer/
 │   ├── t10k-images.idx3-ubyte       # 10,000 test images
 │   └── t10k-labels.idx1-ubyte       # Test labels
 ├── models_data_storage/             # Pretrained model weights
-│   ├── model_1/
-│   │   └── model_1_95.99_0.5.npz    # Model with 95.99% accuracy
-│   └── model_2/
-│       └── model_2_97.04_0.5.npz    # Model with 97.04% accuracy
+│   └── model_1/
+│       ├── model_1_97.52_0.5.npz    # Current model, 97.52% test accuracy
+│       ├── model_1_accuracy.png     # Training and test accuracy plots
+│       └── model_1_raport.txt       # Training report
 ├── user_input_storage/              # Storage for saved user drawings
 ├── requirements.txt                 # Python dependencies
 ├── README.md                        # This file
@@ -103,46 +107,55 @@ digit-recognizer/
 ### model.py - Neural Network Implementation
 
 #### `data_handling(pathimages, pathlabels)`
+
 Loads MNIST data from IDX binary format and normalizes pixel values to [0, 1] range.
 
 #### `Layer` Class
+
 Implements a fully connected neural network layer with:
+
 - **Forward Propagation**: `forward(input)` - Computes weighted sum and bias
 - **Backward Propagation**: `backward(dvalues)` - Calculates gradients for weights, biases, and inputs
 - Weights initialized with small random values for stability
 
 #### `Activation_RELU` Class
+
 Implements ReLU (Rectified Linear Unit) activation function:
+
 - **Forward**: `max(0, x)` - Non-linear activation
 - **Backward**: Gradient passing for backpropagation
 
 #### `Softmax` Class
+
 Converts raw network output to probability distribution:
+
 - Numerically stable implementation with max subtraction
 - Output sums to 1 across all classes
 
 #### `Loss` Class
+
 Computes categorical cross-entropy loss:
+
 - Formula: $-\ln(y_{pred})$ for the correct class
 - Clipping predictions to prevent log(0) errors
 
 #### `Backpropagation` Class
+
 Combines Softmax and Loss for efficient gradient calculation:
+
 - Integrates forward pass through activation and loss
 - Computes backward gradients for optimization
 
 #### `Optimizer` Class
-Implements basic Stochastic Gradient Descent (SGD):
-- Adjusts weights and biases usthe following features:
-- **Training Configuration**: 1000 epochs with learning rate 0.5
-- **Logging**: Displays loss and accuracy every 100 epochs
-- **Evaluation**: Tests on validation set periodically → Layer 2 (64 neurons, ReLU) → Output (10 classes, Softmax) → Loss
 
-**Backward Propagation**: Computes gradients through Softmax/Loss, propagates back through both hidden layers with proper activation derivative
+Implements basic Stochastic Gradient Descent (SGD):
+
+- Adjusts weights and biases using learning rate
+- Simple parameter update rule: $\theta = \theta - \alpha \cdot \nabla\theta$
 
 ### train.py - Training Script
 
-Trains the neural network with configGELU**: $f(x) = 0.5x(1 + \tanh(\sqrt{2/\pi}(x + 0.044715x^3)))$ <br> **urable parameters (learning rate 0.5, 400 epochs). Includes periodic loss and accuracy logging.
+Trains the neural network with configurable parameters (learning rate 0.5, 1000 epochs). Includes periodic loss and accuracy logging, live accuracy plots and a training report.
 
 ## How It Works
 
@@ -161,6 +174,7 @@ Trains the neural network with configGELU**: $f(x) = 0.5x(1 + \tanh(\sqrt{2/\pi}
 An interactive Tkinter-based GUI that loads a trained model and allows real-time digit prediction from user drawings.
 
 **Key Features:**
+
 - **Model Loading**: `transfer_network()` loads pretrained weights from saved `.npz` files
 - **Network Pipeline**: Implements the full neural network using loaded layers and selected activation
 - **Drawing Canvas**: 300×300 pixel drawing area with black ink on white background
@@ -173,6 +187,7 @@ An interactive Tkinter-based GUI that loads a trained model and allows real-time
 - **Controls**: "Predict" button triggers recognition, "Clear" button resets canvas
 
 **Workflow:**
+
 1. App initializes with pretrained model
 2. User draws digit on canvas
 3. Clicking "Predict" sends image through preprocessing pipeline
@@ -183,11 +198,13 @@ An interactive Tkinter-based GUI that loads a trained model and allows real-time
 8. Optional: Save drawn image with prediction metadata
 
 **Network Pipeline Components:**
+
 ```
 Input (784) → Layer1 (128) → [ReLU] → Layer2 (64) → [ReLU] → Output (10) → Softmax → Prediction
 ```
 
 **UI Features:**
+
 - Checkbox for optional image saving
 - Real-time prediction display
 - Confidence percentage shown with prediction
@@ -203,6 +220,7 @@ python source/App.py
 ```
 
 Launch the interactive digit recognizer:
+
 1. Click "Select model" and load a pretrained model from `models_data_storage/`
 2. Draw a digit (0-9) on the white canvas
 3. Check "Save image?" if you want to save the drawing (saved to `user_input_storage/`)
@@ -215,52 +233,71 @@ Launch the interactive digit recognizer:
 
 ```bash
 python source/train.py
-```with the following workflow:
+```
+
+Training runs with the following workflow:
+
 1. Training begins and logs results every 100 epochs
 2. A window with two live plots shows training accuracy (every epoch) and test accuracy (every 100 epochs)
 3. Model is automatically saved with accuracy metrics, along with the two plots as `model_<number>_accuracy.png` in the same folder; the plot window stays open until you close it
 4. A training report is printed and saved as `model_<number>_raport.txt`: configuration and training time, final accuracy, bias and variance, maximum accuracy and its epoch, convergence speed, sudden accuracy drops, and per-digit accuracy (recall), precision and F1 on the test set
 
 **Example Output:**
+
 ```
 Starting training
 Epoch: 0, Loss: 2.297,Accuracy:0.107 Test_Accuracy: 0.110
 Epoch: 100, Loss: 0.218,Accuracy:0.935 Test_Accuracy: 0.920
 Epoch: 200, Loss: 0.143,Accuracy:0.956 Test_Accuracy: 0.945
+```
 
 **Model Saving**: Trained models are automatically saved to `models_data_storage/` as NumPy `.npz` files with naming convention: `model_<number>_<accuracy>_<learning_rate>.npz`
 
 **Important**: Always use the **same activation function** in the app during inference that was used during training for optimal accuracy.
-test accuracy (trained with 0.5 learning rate)
-- **Model 2**: 97.04% test accuracy (trained with 0.5 learning rate)
+
+## Benchmark
+
+The currently trained model is **model_1** (`models_data_storage/model_1/model_1_97.52_0.5.npz`):
+
+| Metric | Value |
+|---|---|
+| Test accuracy | 97.52% |
+| Training accuracy | 99.10% |
+| Bias (training error) | 0.90% |
+| Variance (test error − training error) | 1.58% |
+| Macro precision / recall / F1 | 97.51% / 97.49% / 97.50% |
+| Weakest digit | 9 (95.94% accuracy) |
+| Training time | 8m 30s (1000 epochs, learning rate 0.5) |
+
+<p align="center">
+  <img src="models_data_storage/model_1/model_1_accuracy.png" alt="Training and test accuracy of model_1 over 1000 epochs" width="800" />
+</p>
+
+Full results, including per-digit metrics, are in [`model_1_raport.txt`](models_data_storage/model_1/model_1_raport.txt).
 
 **Training Configuration:**
+
 - **Epochs**: 1000
 - **Learning Rate**: 0.5
 - **Optimizer**: Stochastic Gradient Descent (SGD)
 - **Batch Size**: Full batch (all 60,000 training samples)
 - **Dataset**: MNIST (60,000 training images, 10,000 test images)
-- **Validation**: Test accuracy evaluated every 100 epoch
-- **Epochs**: 1000
-- **Learning Rate**: 0.5
-- **Optimizer**: Stochastic Gradient Descent
-- **Batch Size**: Full batch
-- **Dataset**: MNIST (60,000 training images)
-- **Validation**: 10,000 test imageswith respect to activation functions
+- **Validation**: Test accuracy evaluated every 100 epochs
+
+## Learning Outcomes
+
+This project demonstrates:
+
+- **Neural Network Architecture**: Building networks from scratch without frameworks
+- **Forward Propagation**: How data flows through layers and activations
+- **Backpropagation**: Computing gradients and updating weights
+- **Activation Functions**: ReLU for hidden layers, Softmax for output
 - **Derivative Computation**: Implementing correct backward passes for different activation functions
 - **Loss Functions**: Cross-entropy loss for multi-class classification
 - **Image Processing**: Preprocessing, normalization, and transformation
 - **GUI Development**: Building interactive applications with Tkinter
 - **Model Serialization**: Saving and loading trained neural networks
 - **End-to-End ML Systems**: Data → Model → Training → Inference
-- **Neural Network Architecture**: Building networks from scratch without frameworks
-- **Forward Propagation**: How data flows through layers and activations
-- **Backpropagation**: Computing gradients and updating weights
-- **Activation Functions**: ReLU for hidden layers, Softmax for output
-- **Loss Functions**: Cross-entropy loss for multi-class classification
-- **Image Processing**: Preprocessing, normalization, and transformation
-- **End-to-End ML Systems**: Data → Model → Prediction → Visualization
-
 
 ## Dataset
 
@@ -284,5 +321,3 @@ Source: [MNIST Database by Yann LeCun](http://yann.lecun.com/exdb/mnist/)
 
 
 **Note**: This project was built to understand and dive into neural network mechanics. For production applications, use established frameworks like PyTorch, TensorFlow, or scikit-learn.
-
-
