@@ -63,8 +63,8 @@ class Backpropagation:
         return dvalues
 
 class Optimizer:
-    def __init__(self, input):
-        self.learning_rate = input
+    def __init__(self, learning_rate: int):
+        self.learning_rate = learning_rate
     def adjust_parameters(self, layer):
         layer.weights -= (self.learning_rate * layer.dweights)
         layer.biases -= (self.learning_rate * layer.dbiases)

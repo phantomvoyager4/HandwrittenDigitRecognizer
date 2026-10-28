@@ -21,7 +21,7 @@ activation2 = Activation_RELU()
 hidden_layer2 = Layer(n_inputs=128, n_neurons=64)
 output_layer = Layer(n_inputs=64, n_neurons=10)
 loss_activation = Backpropagation()
-optimization = Optimizer(0.5)
+optimization = Optimizer(learning_rate=0.5)
 network = [hidden_layer1, activation1, hidden_layer2, activation2, output_layer]
 trainable_layers = [hidden_layer1, hidden_layer2, output_layer]
 
@@ -51,14 +51,15 @@ for epoch in range (epochs):
     for layer in trainable_layers:
         optimization.adjust_parameters(layer)
 
-    if epoch % 100 == 0 or epoch == epochs - 1:
-        training_current_input = testimages
-        for layer in network:
-            training_current_input = layer.forward(training_current_input)
+    training_current_input = testimages
+    for layer in network:
+        training_current_input = layer.forward(training_current_input)
         predicted = np.argmax(training_current_input, axis=1)
         comparison_test = np.equal(predicted, testlabels)
         accuracy_test = np.mean(comparison_test)
         accuracy_plot.add_test_accuracy(epoch, accuracy_test)
+
+    if epoch % 100 == 0 or epoch == epochs - 1:
         print(f"Epoch: {epoch}, Loss: {loss:.3f},Accuracy:{accuracy:.3f} Test_Accuracy: {accuracy_test:.3f}")
     accuracy_plot.refresh()
 training_time = time.time() - start_time
