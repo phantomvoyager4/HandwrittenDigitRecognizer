@@ -1,9 +1,9 @@
-# Handwritten Digit Recognizer (神经网络)
+# Handwritten Digit Recognizer
 
 A neural network implementation built from scratch using NumPy to recognize handwritten digits trained on the MNIST dataset. This project demonstrates core deep learning concepts including forward propagation, backpropagation, activation functions, and optimization techniques.
 
 <p align="center">
-  <img src="https://github.com/phantomvoyager4/HandwrittenDigitsRecognizer/blob/main/demo.gif" width="250" />
+  <img src="demo.gif" width="250" alt="Drawing a digit in the app and getting a prediction" />
 </p>
 
 ## Table of Contents
@@ -25,9 +25,9 @@ A neural network implementation built from scratch using NumPy to recognize hand
 
 **Key Performance Metrics:**
 
-- Accuracy: 97.52% on the test set, 99.10% on the training set (current model, see [Benchmark](#benchmark))
-- Training Epochs: 1000
-- Dataset: MNIST (60,000 training images, 10,000 test images)
+- Accuracy: 97.97% on the test set, measured once on the model chosen by validation accuracy (see [Benchmark](#benchmark))
+- Training: mini-batch SGD, 30 epochs, about 1 minute on a CPU
+- Dataset: MNIST, split into 50,000 training, 10,000 validation and 10,000 test images
 - Input Size: 784 pixels (28×28 images)
 - Output Classes: 10 (digits 0-9)
 
@@ -36,25 +36,24 @@ A neural network implementation built from scratch using NumPy to recognize hand
 The neural network consists of:
 
 - **Input Layer**: 784 neurons (flattened 28×28 pixel images)
-- **Hidden Layer 1**: 128 neurons with ReLU activation (user selectable)
-- **Hidden Layer 2**: 64 neurons with ReLU activation (user selectable)
+- **Hidden Layer 1**: 128 neurons with ReLU activation
+- **Hidden Layer 2**: 64 neurons with ReLU activation
 - **Output Layer**: 10 neurons with Softmax activation (one per digit)
 
 ## Technologies & Dependencies
 
-- **Python 3.8+**
-- **NumPy 1.24.3**: Numerical computing and matrix operations
-- **idx2numpy 1.2.3**: For loading and converting MNIST IDX binary format
-- **Pillow 10.0.0**: Image processing for UI input
-- **Matplotlib 3.7.5**: Live accuracy plots during training
+- **Python 3.10+**
+- **NumPy**: the whole network, including reading the MNIST IDX files (a 16-line parser, no extra dependency)
+- **Pillow**: image processing for UI input
+- **Matplotlib**: accuracy plots during training
 
 ### Installation
 
 1. Clone the repository:
 
 ```bash
-git clone https://github.com/yourusername/digit-recognizer.git
-cd digit-recognizer
+git clone https://github.com/phantomvoyager4/HandwrittenDigitRecognizer.git
+cd HandwrittenDigitRecognizer
 ```
 
 2. Create a virtual environment (optional but recommended):
@@ -78,24 +77,25 @@ pip install -r requirements.txt
 ## Project Structure
 
 ```
-digit-recognizer/
+HandwrittenDigitRecognizer/
 ├── source/                          # Main source code
 │   ├── model.py                     # Neural network implementation
-│   ├── train.py                     # Training script
-│   ├── plot.py                      # Live accuracy plots for training
-│   ├── raport.py                    # Training report (bias, variance, best accuracy, per-digit metrics)
-│   ├── App.py                       # Interactive GUI application
-│   └── __pycache__/                 # Python cache
+│   ├── train.py                     # Training script (mini-batch or full-batch, validation split)
+│   ├── plot.py                      # Training and validation accuracy plots
+│   ├── raport.py                    # Training report (bias, variance, test result, per-digit metrics)
+│   └── App.py                       # Interactive GUI application
 ├── dataset/                         # MNIST dataset files (binary IDX format)
 │   ├── train-images.idx3-ubyte      # 60,000 training images
 │   ├── train-labels.idx1-ubyte      # Training labels
 │   ├── t10k-images.idx3-ubyte       # 10,000 test images
 │   └── t10k-labels.idx1-ubyte       # Test labels
 ├── models_data_storage/             # Pretrained model weights
-│   └── model_1/
-│       ├── model_1_97.52_0.5.npz    # Current model, 97.52% test accuracy
-│       ├── model_1_accuracy.png     # Training and test accuracy plots
-│       └── model_1_raport.txt       # Training report
+│   ├── model_1/                     # Current model: mini-batch SGD
+│   │   ├── model_1_97.97_0.1.npz    # Weights, 97.97% test accuracy
+│   │   ├── model_1_accuracy.png     # Training and validation accuracy plots
+│   │   ├── model_1_history.csv      # Accuracy per epoch
+│   │   └── model_1_raport.txt       # Training report
+│   └── model_2/                     # Comparison: full-batch gradient descent (same files)
 ├── user_input_storage/              # Storage for saved user drawings
 ├── requirements.txt                 # Python dependencies
 ├── README.md                        # This file
@@ -108,7 +108,11 @@ digit-recognizer/
 
 #### `data_handling(pathimages, pathlabels)`
 
-Loads MNIST data from IDX binary format and normalizes pixel values to [0, 1] range.
+Loads MNIST data from the IDX binary format with a small NumPy parser (`read_idx`) and normalizes pixel values to [0, 1].
+
+#### `train_validation_split(images, labels, validation_size, seed)`
+
+Cuts a validation set out of the 60,000 training images (10,000 by default). Model selection uses only this set, so the test set stays unseen until the end.
 
 #### `Layer` Class
 
@@ -116,7 +120,7 @@ Implements a fully connected neural network layer with:
 
 - **Forward Propagation**: `forward(input)` - Computes weighted sum and bias
 - **Backward Propagation**: `backward(dvalues)` - Calculates gradients for weights, biases, and inputs
-- Weights initialized with small random values for stability
+- Weights use He initialization (`randn * sqrt(2 / n_inputs)`), suited to ReLU
 
 #### `Activation_RELU` Class
 
@@ -148,20 +152,20 @@ Combines Softmax and Loss for efficient gradient calculation:
 
 #### `Optimizer` Class
 
-Implements basic Stochastic Gradient Descent (SGD):
+Implements the plain gradient descent update. Whether training is stochastic (mini-batch SGD) or full-batch depends only on how many images `train.py` passes per step:
 
 - Adjusts weights and biases using learning rate
 - Simple parameter update rule: $\theta = \theta - \alpha \cdot \nabla\theta$
 
 ### train.py - Training Script
 
-Trains the neural network with configurable parameters (learning rate 0.5, 1000 epochs). Includes periodic loss and accuracy logging, live accuracy plots and a training report.
+Trains the network with mini-batch SGD by default: the training images are shuffled every epoch and split into batches of 64. After each epoch it measures accuracy on the training and validation sets and keeps the weights from the epoch with the best validation accuracy. The test set is evaluated once, on those weights, after training ends. Every setting is a command-line option (see [Training a New Model](#training-a-new-model)).
 
 ## How It Works
 
 **Forward Propagation**: Input (784 features) → Layer 1 (128 neurons, ReLU) → Layer 2 (64 neurons, ReLU) → Output (10 classes, Softmax) → Loss
 
-**Backward Propagation**: Computes gradients through Softmax/Loss, propagates back through both hidden layers, and updates all weights and biases using SGD.
+**Backward Propagation**: Computes gradients through Softmax/Loss, propagates back through both hidden layers, and updates all weights and biases after every mini-batch.
 
 ### Key Mathematics
 
@@ -232,57 +236,68 @@ Launch the interactive digit recognizer:
 ### Training a New Model
 
 ```bash
-python source/train.py
+python source/train.py                                            # mini-batch SGD, the current model
+python source/train.py --batch-size 0 --learning-rate 0.5 --epochs 1000   # full-batch gradient descent
 ```
+
+| Option | Default | Meaning |
+|---|---|---|
+| `--epochs` | 30 | Passes over the training set |
+| `--learning-rate` | 0.1 | Step size of the gradient descent update |
+| `--batch-size` | 64 | Images per update; `0` uses the whole training set (full-batch) |
+| `--validation-size` | 10000 | Images cut from the training set to choose the best epoch |
+| `--seed` | 42 | Fixes weight initialization, the validation split and the batch order, so a run can be reproduced |
+| `--no-plot` | off | No live plot window (for example over SSH); the plot is still saved |
 
 Training runs with the following workflow:
 
-1. Training begins and logs results every 100 epochs
-2. A window with two live plots shows training accuracy (every epoch) and test accuracy (every 100 epochs)
-3. Model is automatically saved with accuracy metrics, along with the two plots as `model_<number>_accuracy.png` in the same folder; the plot window stays open until you close it
-4. A training report is printed and saved as `model_<number>_raport.txt`: configuration and training time, final accuracy, bias and variance, maximum accuracy and its epoch, convergence speed, sudden accuracy drops, and per-digit accuracy (recall), precision and F1 on the test set
+1. The training images are shuffled every epoch and processed in mini-batches
+2. After each epoch, accuracy is measured on the training and validation sets (shown live in two plots)
+3. The weights from the epoch with the best validation accuracy are kept
+4. Only then is the test set evaluated, once, on those weights
+5. The model is saved to `models_data_storage/model_<number>/` with its accuracy plot, per-epoch history (`.csv`) and a training report (`model_<number>_raport.txt`): configuration and training time, training/validation/test accuracy of the selected model, bias and variance, convergence speed, sudden accuracy drops, and per-digit accuracy (recall), precision and F1 on the test set
 
 **Example Output:**
 
 ```
-Starting training
-Epoch: 0, Loss: 2.297,Accuracy:0.107 Test_Accuracy: 0.110
-Epoch: 100, Loss: 0.218,Accuracy:0.935 Test_Accuracy: 0.920
-Epoch: 200, Loss: 0.143,Accuracy:0.956 Test_Accuracy: 0.945
+Starting training: Mini-batch SGD (batch size 64), learning rate 0.1, 30 epochs
+Training set 50000, validation set 10000, test set 10000 (used once, after training)
+Epoch: 0, Loss: 0.358, Accuracy: 0.9227, Validation_Accuracy: 0.9140
+Epoch: 3, Loss: 0.091, Accuracy: 0.9789, Validation_Accuracy: 0.9680
+Epoch: 6, Loss: 0.053, Accuracy: 0.9896, Validation_Accuracy: 0.9728
+...
+Best epoch: 29 (validation accuracy 0.9786), test accuracy: 0.9797
 ```
 
-**Model Saving**: Trained models are automatically saved to `models_data_storage/` as NumPy `.npz` files with naming convention: `model_<number>_<accuracy>_<learning_rate>.npz`
-
-**Important**: Always use the **same activation function** in the app during inference that was used during training for optimal accuracy.
+**Model Saving**: models are saved as NumPy `.npz` files named `model_<number>_<test accuracy>_<learning rate>.npz`, which the app loads directly.
 
 ## Benchmark
 
-The currently trained model is **model_1** (`models_data_storage/model_1/model_1_97.52_0.5.npz`):
+Both models use the same network, the same seed and the same 50,000 / 10,000 / 10,000 split, and both were trained on the same CPU. The only difference is how many images each weight update sees.
 
-| Metric | Value |
-|---|---|
-| Test accuracy | 97.52% |
-| Training accuracy | 99.10% |
-| Bias (training error) | 0.90% |
-| Variance (test error − training error) | 1.58% |
-| Macro precision / recall / F1 | 97.51% / 97.49% / 97.50% |
-| Weakest digit | 9 (95.94% accuracy) |
-| Training time | 8m 30s (1000 epochs, learning rate 0.5) |
+| | Mini-batch SGD (**model_1**, current) | Full-batch gradient descent (model_2) |
+|---|---|---|
+| Batch size / learning rate | 64 / 0.1 | 50,000 / 0.5 |
+| Epochs | 30 | 1000 |
+| Training time | **1m 5s** | 30m 52s |
+| Training accuracy reached 95% | epoch 1 | epoch 164 |
+| Selected epoch (best validation) | 29 | 924 |
+| Training / validation accuracy | 100.00% / 97.86% | 99.11% / 97.26% |
+| **Test accuracy** (measured once) | **97.97%** | 97.41% |
+| Macro precision / recall / F1 (test) | 97.96% / 97.95% / 97.95% | 97.41% / 97.38% / 97.39% |
+| Weakest digit (test recall) | 8 (96.92%) | 5 (95.96%) |
+
+Full-batch gradient descent makes one update per epoch, so it needs about 1000 epochs to get close; mini-batch SGD makes 782 updates per epoch and gets further in 30. Training times include measuring training and validation accuracy after every epoch.
 
 <p align="center">
-  <img src="models_data_storage/model_1/model_1_accuracy.png" alt="Training and test accuracy of model_1 over 1000 epochs" width="800" />
+  <img src="models_data_storage/model_1/model_1_accuracy.png" alt="Training and validation accuracy of model_1 over 30 epochs of mini-batch SGD" width="800" />
 </p>
 
-Full results, including per-digit metrics, are in [`model_1_raport.txt`](models_data_storage/model_1/model_1_raport.txt).
+The full-batch run is also less stable: training accuracy collapses and recovers several times in the first 250 epochs (8 falls of 5 percentage points or more; the last one, at epoch 238–248, goes from 96.0% to 84.8%), a sign that a learning rate of 0.5 is close to the largest step full-batch training can take on this network ([plot](models_data_storage/model_2/model_2_accuracy.png)).
 
-**Training Configuration:**
+**Limitation**: model_1 reaches 100% training accuracy while validation stays near 97.9%, so the network memorizes the training set. The next step is regularization (L2 weight decay or dropout) and data augmentation (small shifts and rotations), which also matter for digits drawn in the app, since they look less like MNIST than the test set does.
 
-- **Epochs**: 1000
-- **Learning Rate**: 0.5
-- **Optimizer**: Stochastic Gradient Descent (SGD)
-- **Batch Size**: Full batch (all 60,000 training samples)
-- **Dataset**: MNIST (60,000 training images, 10,000 test images)
-- **Validation**: Test accuracy evaluated every 100 epochs
+Full results, including per-digit metrics, are in [`model_1_raport.txt`](models_data_storage/model_1/model_1_raport.txt) and [`model_2_raport.txt`](models_data_storage/model_2/model_2_raport.txt).
 
 ## Learning Outcomes
 
@@ -291,6 +306,8 @@ This project demonstrates:
 - **Neural Network Architecture**: Building networks from scratch without frameworks
 - **Forward Propagation**: How data flows through layers and activations
 - **Backpropagation**: Computing gradients and updating weights
+- **Optimization**: Mini-batch SGD compared with full-batch gradient descent on equal terms
+- **Evaluation**: Train / validation / test split, model selection on validation only, a single test measurement
 - **Activation Functions**: ReLU for hidden layers, Softmax for output
 - **Derivative Computation**: Implementing correct backward passes for different activation functions
 - **Loss Functions**: Cross-entropy loss for multi-class classification
@@ -304,7 +321,8 @@ This project demonstrates:
 The MNIST dataset contains 70,000 handwritten digit images (28×28 pixels):
 - **Training Set**: 60,000 images
 - **Test Set**: 10,000 images
-- **Format**: Binary IDX format (loaded via idx2numpy)
+- **Format**: Binary IDX format (read with `read_idx` in `model.py`)
+- **Split used here**: 50,000 training, 10,000 validation (cut from the training set with a fixed seed), 10,000 test
 - **Pixel Values**: 0-255 (normalized to [0, 1] for training)
 
 Source: [MNIST Database by Yann LeCun](http://yann.lecun.com/exdb/mnist/)
@@ -317,7 +335,6 @@ Source: [MNIST Database by Yann LeCun](http://yann.lecun.com/exdb/mnist/)
 - [Softmax and Cross-Entropy](https://en.wikipedia.org/wiki/Softmax_function)
 - [Backpropagation Algorithm](https://en.wikipedia.org/wiki/Backpropagation)
 - [MNIST Dataset](http://yann.lecun.com/exdb/mnist/)
-- [idx2numpy Library](https://github.com/ivanyu/idx2numpy)
 
 
 **Note**: This project was built to understand and dive into neural network mechanics. For production applications, use established frameworks like PyTorch, TensorFlow, or scikit-learn.

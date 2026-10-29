@@ -1,13 +1,27 @@
 import numpy as np
-import idx2numpy
+
+
+def read_idx(path):
+    #IDX format: 2 zero bytes, a data type byte, the number of dimensions,
+    #then one big-endian uint32 per dimension, then the raw uint8 values
+    with open(path, 'rb') as file:
+        data = file.read()
+    n_dimensions = data[3]
+    shape = tuple(int.from_bytes(data[4 + 4 * i: 8 + 4 * i], 'big') for i in range(n_dimensions))
+    return np.frombuffer(data, dtype=np.uint8, offset=4 + 4 * n_dimensions).reshape(shape)
 
 
 def data_handling(pathimages, pathlabels):
-    images = idx2numpy.convert_from_file(pathimages)
-    images = images.reshape((-1, 784))
-    images = images / 255.0
-    labels = idx2numpy.convert_from_file(pathlabels)
+    images = read_idx(pathimages).reshape((-1, 784)) / 255.0
+    labels = read_idx(pathlabels).astype(np.int64)
     return images, labels
+
+
+def train_validation_split(images, labels, validation_size, seed):
+    #the validation set is cut from the training set, so the test set is used only once, at the very end
+    order = np.random.default_rng(seed).permutation(len(labels))
+    validation, train = order[:validation_size], order[validation_size:]
+    return images[train], labels[train], images[validation], labels[validation]
 
 class Layer:
     def __init__(self, n_inputs, n_neurons):
@@ -63,7 +77,8 @@ class Backpropagation:
         return dvalues
 
 class Optimizer:
-    def __init__(self, learning_rate: int):
+    #plain gradient descent update; whether it is SGD or full-batch depends on what train.py feeds it
+    def __init__(self, learning_rate: float):
         self.learning_rate = learning_rate
     def adjust_parameters(self, layer):
         layer.weights -= (self.learning_rate * layer.dweights)

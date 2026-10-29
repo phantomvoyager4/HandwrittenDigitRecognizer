@@ -2,48 +2,47 @@ Training report: model_1
 
 Configuration
   Architecture:   784 -> 128 (Activation_RELU) -> 64 (Activation_RELU) -> 10 (Softmax)
-  Learning rate:  0.5
-  Epochs:         1000
-  Training time:  8m 30s (0.51 s per epoch, including live plot updates)
+  Optimizer:      Mini-batch SGD (batch size 64)
+  Learning rate:  0.1
+  Epochs:         30
+  Seed:           42
+  Training time:  1m 2s (2.06 s per epoch)
 
-Final accuracy (epoch 999)
-  Training set:  99.10%
-  Test set:      97.52%
+Selected model (epoch 29, best validation accuracy of 30 epochs)
+  Training set:    100.00%
+  Validation set:  97.86%
+  Test set:        97.97%  (measured once, on the selected model)
 
 Bias and variance
-  Bias (training error):                    0.90%
-  Variance (test error - training error):   1.58%
+  Bias (training error):                         0.00%
+  Variance (validation error - training error):  2.14%
 
-Maximum accuracy
-  Training set:  99.10% at epoch 996
-  Test set:      97.52% at epoch 999 (best of 11 measurements)
+Last epoch
+  Training set:    100.00%
+  Validation set:  97.86%
 
 Convergence (training set)
-  First reached 90%:  epoch 40
-  First reached 95%:  epoch 163
+  First reached 90%:  epoch 0
+  First reached 95%:  epoch 1
 
 Training stability (falls in training accuracy of 5 percentage points or more)
-  Number of drops:  6
-  Largest drops:
-    epoch 3 -> 6:  59.01% -> 33.60%
-    epoch 211 -> 219:  95.65% -> 83.67%
-    epoch 9 -> 11:  66.84% -> 55.71%
+  No drops - training accuracy rose steadily
 
 Per-digit results (test set)
   Digit  Samples  Accuracy  Precision        F1
-      0      980    98.88%     97.98%    98.43%
-      1     1135    99.03%     98.51%    98.77%
-      2     1032    97.48%     97.29%    97.39%
-      3     1010    97.62%     96.48%    97.05%
-      4      982    97.56%     97.46%    97.51%
-      5      892    96.64%     97.40%    97.02%
-      6      958    97.60%     97.80%    97.70%
-      7     1028    97.67%     97.67%    97.67%
-      8      974    96.51%     97.31%    96.91%
-      9     1009    95.94%     97.19%    96.56%
-  Macro average     97.49%     97.51%    97.50%
+      0      980    98.98%     98.38%    98.68%
+      1     1135    99.12%     98.68%    98.90%
+      2     1032    98.35%     97.60%    97.97%
+      3     1010    98.02%     97.44%    97.73%
+      4      982    98.37%     97.77%    98.07%
+      5      892    97.31%     97.97%    97.64%
+      6      958    98.23%     98.12%    98.17%
+      7     1028    97.18%     98.13%    97.65%
+      8      974    96.92%     97.42%    97.17%
+      9     1009    97.03%     98.10%    97.56%
+  Macro average     97.95%     97.96%    97.95%
 
-  Weakest digit: 9 (95.94% accuracy)
+  Weakest digit: 8 (96.92% accuracy)
   Accuracy = recall: share of a digit's images the model classified correctly
   Precision: share of predictions of a digit that were correct
   F1: balance of precision and recall

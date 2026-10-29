@@ -5,13 +5,14 @@ DROP_THRESHOLD = 0.05 #smallest fall in training accuracy counted as a drop
 CONVERGENCE_TARGETS = (0.90, 0.95)
 
 
-def create_raport(model_name, network, learning_rate, training_time,
-                  train_epochs, train_accuracy, test_epochs, test_accuracy,
+def create_raport(model_name, network, learning_rate, optimizer_name, seed, training_time, live_plot,
+                  train_epochs, train_accuracy, validation_epochs, validation_accuracy, best_epoch,
                   test_predictions, test_labels):
     sections = [
         [f"Training report: {model_name}"],
-        config_section(network, learning_rate, len(train_epochs), training_time),
-        accuracy_section(train_epochs, train_accuracy, test_epochs, test_accuracy),
+        config_section(network, learning_rate, optimizer_name, seed, len(train_epochs), training_time, live_plot),
+        accuracy_section(train_epochs, train_accuracy, validation_epochs, validation_accuracy,
+                         best_epoch, test_predictions, test_labels),
         convergence_section(train_epochs, train_accuracy),
         stability_section(train_epochs, train_accuracy),
         per_digit_section(test_predictions, test_labels),
@@ -24,7 +25,7 @@ def save_raport(raport, path):
         file.write(raport + "\n")
 
 
-def config_section(network, learning_rate, epochs, training_time):
+def config_section(network, learning_rate, optimizer_name, seed, epochs, training_time, live_plot):
     architecture = str(network[0].weights.shape[0])
     for layer in network:
         if isinstance(layer, Layer):
@@ -33,41 +34,43 @@ def config_section(network, learning_rate, epochs, training_time):
             architecture += f" ({type(layer).__name__})"
     architecture += " (Softmax)"
     minutes, seconds = divmod(round(training_time), 60)
+    plot_note = ", including live plot updates" if live_plot else ""
     return [
         "Configuration",
         f"  Architecture:   {architecture}",
+        f"  Optimizer:      {optimizer_name}",
         f"  Learning rate:  {learning_rate}",
         f"  Epochs:         {epochs}",
-        f"  Training time:  {minutes}m {seconds}s ({training_time / epochs:.2f} s per epoch, including live plot updates)",
+        f"  Seed:           {seed}",
+        f"  Training time:  {minutes}m {seconds}s ({training_time / epochs:.2f} s per epoch{plot_note})",
     ]
 
 
-def accuracy_section(train_epochs, train_accuracy, test_epochs, test_accuracy):
-    #test accuracy is only measured every few epochs, so compare both sets at the last test measurement
-    final_epoch = test_epochs[-1]
-    final_train = train_accuracy[train_epochs.index(final_epoch)]
-    final_test = test_accuracy[-1]
+def accuracy_section(train_epochs, train_accuracy, validation_epochs, validation_accuracy,
+                     best_epoch, test_predictions, test_labels):
+    #the saved model comes from the epoch with the best validation accuracy;
+    #the test set was not looked at until that choice was made
+    best_train = train_accuracy[train_epochs.index(best_epoch)]
+    best_validation = validation_accuracy[validation_epochs.index(best_epoch)]
+    test = float(np.mean(test_predictions == test_labels))
 
     #bias = error on the training set, variance = how much worse the model does on unseen data
-    bias = 1 - final_train
-    variance = (1 - final_test) - (1 - final_train)
-
-    best_train_index = int(np.argmax(train_accuracy))
-    best_test_index = int(np.argmax(test_accuracy))
+    bias = 1 - best_train
+    variance = (1 - best_validation) - (1 - best_train)
 
     return [
-        f"Final accuracy (epoch {final_epoch})",
-        f"  Training set:  {final_train:.2%}",
-        f"  Test set:      {final_test:.2%}",
+        f"Selected model (epoch {best_epoch}, best validation accuracy of {len(validation_epochs)} epochs)",
+        f"  Training set:    {best_train:.2%}",
+        f"  Validation set:  {best_validation:.2%}",
+        f"  Test set:        {test:.2%}  (measured once, on the selected model)",
         "",
         "Bias and variance",
-        f"  Bias (training error):                    {bias:.2%}",
-        f"  Variance (test error - training error):   {variance:.2%}",
+        f"  Bias (training error):                         {bias:.2%}",
+        f"  Variance (validation error - training error):  {variance:.2%}",
         "",
-        "Maximum accuracy",
-        f"  Training set:  {train_accuracy[best_train_index]:.2%} at epoch {train_epochs[best_train_index]}",
-        f"  Test set:      {test_accuracy[best_test_index]:.2%} at epoch {test_epochs[best_test_index]}"
-        f" (best of {len(test_epochs)} measurements)",
+        "Last epoch",
+        f"  Training set:    {train_accuracy[-1]:.2%}",
+        f"  Validation set:  {validation_accuracy[-1]:.2%}",
     ]
 
 
