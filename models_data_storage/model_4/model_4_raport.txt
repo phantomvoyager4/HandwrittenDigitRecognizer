@@ -1,0 +1,48 @@
+Training report: model_4
+
+Configuration
+  Architecture:   784 -> 128 (Activation_RELU) -> 64 (Activation_RELU) -> 10 (Softmax)
+  Optimizer:      Mini-batch SGD (batch size 64)
+  Learning rate:  0.5
+  Epochs:         50
+  Seed:           42
+  Training time:  1m 0s (1.19 s per epoch, including live plot updates)
+
+Selected model (epoch 41, best validation accuracy of 50 epochs)
+  Training set:    100.00%
+  Validation set:  97.90%
+  Test set:        98.28%  (measured once, on the selected model)
+
+Bias and variance
+  Bias (training error):                         0.00%
+  Variance (validation error - training error):  2.10%
+
+Last epoch
+  Training set:    100.00%
+  Validation set:  97.89%
+
+Convergence (training set)
+  First reached 90%:  epoch 0
+  First reached 95%:  epoch 1
+
+Training stability (falls in training accuracy of 5 percentage points or more)
+  No drops - training accuracy rose steadily
+
+Per-digit results (test set)
+  Digit  Samples  Accuracy  Precision        F1
+      0      980    99.08%     98.78%    98.93%
+      1     1135    99.12%     99.12%    99.12%
+      2     1032    98.84%     97.70%    98.27%
+      3     1010    98.71%     97.65%    98.18%
+      4      982    98.37%     98.07%    98.22%
+      5      892    97.31%     98.97%    98.13%
+      6      958    97.91%     98.63%    98.27%
+      7     1028    96.79%     98.22%    97.50%
+      8      974    98.46%     98.06%    98.26%
+      9     1009    98.02%     97.63%    97.82%
+  Macro average     98.26%     98.28%    98.27%
+
+  Weakest digit: 7 (96.79% accuracy)
+  Accuracy = recall: share of a digit's images the model classified correctly
+  Precision: share of predictions of a digit that were correct
+  F1: balance of precision and recall

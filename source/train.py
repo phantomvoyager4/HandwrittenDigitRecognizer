@@ -8,8 +8,8 @@ from model import data_handling, train_validation_split, Layer, Activation_RELU,
 
 
 parser = argparse.ArgumentParser(description='Train the digit recognizer on MNIST')
-parser.add_argument('--epochs', type=int, default=30)
-parser.add_argument('--learning-rate', type=float, default=0.1)
+parser.add_argument('--epochs', type=int, default=50)
+parser.add_argument('--learning-rate', type=float, default=0.5)
 parser.add_argument('--batch-size', type=int, default=64, help='0 trains on the whole training set at once (full-batch gradient descent)')
 parser.add_argument('--validation-size', type=int, default=10000, help='images cut from the training set to choose the best epoch')
 parser.add_argument('--seed', type=int, default=42)
