@@ -1,14 +1,25 @@
 import torch 
 import torch.nn
 import torch.optim
-from dataclasses import dataclass
+from dataclasses import dataclass, asdict
 import copy
+from pathlib import Path
 
 from model import NN_Model, ModelArgs
 from device import device
 from data import data_loading
 
 device_selection = device()
+
+# Directory logic
+MODELS_DIRECTORY_PATH = Path(__file__).resolve().parent.parent / "models_data_storage"
+model_version_number = 1
+while True:
+    MODEL_SAVING_PATH = MODELS_DIRECTORY_PATH / f"model_pytorch_{model_version_number}.pt"
+    if Path.exists(MODEL_SAVING_PATH):
+        model_version_number += 1
+    else:
+        break
 
 @dataclass
 class Hyperparams:
@@ -28,13 +39,10 @@ def accuracy(logits_grid: torch.Tensor, labels: torch.Tensor) -> float:
     mean_predicted = torch.mean(predicted_digits_validated)
     return mean_predicted.item()
 
-
 hp = Hyperparams()
 torch.manual_seed(hp.seed)
 
 train_images, train_labels, validation_images, validation_labels, test_images, test_labels = data_loading(hp.validation_size, hp.seed)
-
-
 
 args = ModelArgs()
 model = NN_Model(args)
@@ -108,4 +116,13 @@ with torch.inference_mode():
     predictions_test = model(test_images)
     test_accuracy = accuracy(predictions_test, test_labels)
 
-print(f"Best epoch: {best_epoch}, Best accuracy {best_accuracy:.3f}, Test accuracy: {test_accuracy:.3f}")
+results = {"Best_Epoch": best_epoch,
+           "Best_Accuracy": best_accuracy,
+           "Test_Accuracy": test_accuracy}
+model_save = {"weights": model.state_dict(),
+                "model_config": asdict(args),
+                "training_config": asdict(hp),
+                "results": results}
+torch.save(model_save, MODEL_SAVING_PATH)
+
+print(f"Best epoch: {best_epoch}, Best accuracy {best_accuracy:.3f}, Test accuracy: {test_accuracy:.3f} \n save path: {MODEL_SAVING_PATH}")
